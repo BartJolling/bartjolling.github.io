@@ -77,21 +77,55 @@ git clone https://github.com/github_username/github_username.github.io
 
 # Scaffold a Jekyll site - choosing a theme
 
-Depending on what kind of website you want to create the following steps are different, although you can mix and match as you please. For my personal website with a blog, I'm using the default minima theme. For a project website, I would use one of the custom Github Jekyll themes. I'll describe both:
+Depending on what kind of website you want to create, the procedure is slightly different although you can mix and match as you please. 
+- For my personal website with a blog, I'm using the default minima theme. This theme supports layouts for a main homepage, regular pages and blog posts out of the box.
+- For a project website, I would use one of the custom Github Jekyll themes.
 
 ## Option 1: Scaffold a personal site - minima theme
 
-This option is the quickest way to become productive. It is easy to install and it supports layouts for a main homepage, regular pages and blog posts out of the box.
-
-In Bash from your user's home folder, execute following commands to initialize a template site and update the config file
+In Bash from your user's home folder, execute the following command to initialize a template site, replacing github_username with your actual Github username:
 
 ~~~~ shell
 jekyll new github_username.github.io
+~~~~
+
+This will create the files Jekyll requires to build the site, an index page and some sample pages and posts. The default Gemfile that is created uses the "jekyll" gem which is sufficient so there is no need to change it. 
+
+## Option 2: Scaffold a project site - custom theme
+In this option you will have to create the required files yourself, starting with the Gemfile. 
+
+~~~~ shell
+cd github_username.github.io
+nano Gemfile
+~~~~
+
+My Gemfile looks like this:
+~~~~ text
+source "https://rubygems.org"
+gem "github-pages", group: :jekyll_plugins
+
+# If you have any plugins, put them here!
+group :jekyll_plugins do
+  gem "jekyll-feed", "~> 0.6"
+end
+~~~~
+
+Execute the followings commands to install the github-pages gem and fix version conflicts:
+
+~~~~ shell
+bundle install
+bundle update
+~~~~
+
+## Configure Jekyll site generation
+Using nano, create a _config.yml or adjust the settings in the existing _config.yml to match your site.
+
+~~~~ shell
 cd github_username.github.io
 nano _config.yml
 ~~~~
 
-In nano, adjust the settings in _config.yml to match your site. For example, I added the 'rouge' syntax highlighter so my file looks like this
+For example, I added the 'rouge' syntax highlighter so my file looks like this:
 ~~~~ text
 title: Bart's Software Cookbook
 email: BartJolling@users.noreply.github.com
@@ -106,39 +140,29 @@ plugins:
   - jekyll-feed
 ~~~~
 
-In nano, adjust the settings in Gemfile to replace the "jekyll" gem with the "github-pages" gem.
+If you have installed the "github-pages" gem in your Gemfile, you can pick any theme from [this list](https://pages.github.com/themes/), instead of minima.
+
+# Build and serve the site locally
+Open a second Bash in WSL, navigate to the folder of the website and start the Jekyll process:
+
 ~~~~ shell
-nano Gemfile
+cd github_username.github.io
+bundle exec jekyll serve
 ~~~~
 
-My Gemfile looks like this
-~~~~ text
-source "https://rubygems.org"
-gem "github-pages", group: :jekyll_plugins
-
-# If you have any plugins, put them here!
-group :jekyll_plugins do
-  gem "jekyll-feed", "~> 0.6"
-end
-~~~~
-
-## Option 2: Scaffold a project site - Github theme
-
-
-
+This will build the site and host it on [http://localhost:4000](http://localhost:4000) which you can access from a browser on your Windows 10 machine.
 
 # Publish to Github and build Github page
-Make sure that the vendor folder is ignored by git. Only need to do this once:
+Make sure that the vendor folder is ignored by git. You only need to do this once:
 ~~~~ shell
 echo 'vendor/' >> .gitignore
 ~~~~
 
-Upload the changes to the Github repository and trigger the automated jekyll build on Github Pages:
+Upload the changes to the Github repository and trigger the automated Jekyll build on Github Pages:
 ~~~~ shell
 git add --all
 git commit -m "Initial commit"
 git push -u origin master
 ~~~~
 
-At this point, your scaffolded Jekyll site is up and running on https://_github_username_.github.io/
-
+If the build on Github Pages fails, you will get a notification via mail. But if every went according to plan, your scaffolded Jekyll site should be up and running on https://_github_username_.github.io/

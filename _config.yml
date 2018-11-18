@@ -15,7 +15,7 @@
 # in the templates via {{ site.myvariable }}.
 title: Bart's Software Cookbook
 email: BartJolling@users.noreply.github.com
-description: Solution Architect, Development Lead, Problem Solver
+description: Architect, Developer, Coach, Problem Solver
 baseurl: "" # the subpath of your site, e.g /blog
 url: "https://bartjolling.github.io"
 github_username: BartJolling
