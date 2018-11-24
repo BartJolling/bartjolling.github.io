@@ -39,7 +39,7 @@ To enable Disqus, you first need to set up and account and configure it for your
 - [Sign-up for a Disqus account](https://disqus.com/profile/signup/ "Disqus sign-up") if you don't have one yet 
 - Choose the option 'I want to install Disqus on my site'
 - Choose a name for your website and select a category
-  - I choose "bartjolling" and 'Tech'
+  - Assume I choose 'my_disqus_shortname' and 'Tech'
 - Pick a plan. I went for Basic (Free, Ads Supported)
 - Select the 'Jekyll' platform and click 'Configure'
 - Configure Disqus and point it to your Github pages website
@@ -50,6 +50,11 @@ To enable Disqus, you first need to set up and account and configure it for your
     shortname: my_disqus_shortname
 ````
 
+### Enabling Google Analytics
+The minima theme has a plugin for [Google Analytics](https://analytics.google.com/). Sign up for an account and configure a tracking id for your website. To enable Google Analytics, add the following lines to the _config.yml file of your Jekyll site:
 
-
+````yaml
+ google_analytics: UA-NNNNNNNN-N
+````
+But replace UA-NNNNNNNN-N with the tracking id that was assigned to you and your site.
 
