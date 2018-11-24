@@ -1,7 +1,9 @@
 ---
 layout: post
 title:  "Building Github Pages with Jekyll on the Windows Subsystem for Linux"
-categories: Blog
+date: 2018-11-18
+last_modified_at: 2018-11-24
+categories: blog
 tags: [Jekyll, Github Pages, Windows Subsystem for Linux] 
 ---
 
@@ -128,7 +130,7 @@ nano _config.yml
 ~~~~
 
 For example, I added the 'rouge' syntax highlighter so my file looks like this:
-~~~~ text
+~~~~ yaml
 title: Bart's Software Cookbook
 email: BartJolling@users.noreply.github.com
 description: Solution Architect, Development Lead, Problem Solver
