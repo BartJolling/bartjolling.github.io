@@ -7,7 +7,7 @@ tags: [Jekyll, Github Pages, Windows Subsystem for Linux]
 
 ## Introduction
 
-Since some time I've been planning to move my blog away from [blogspot](https://bartjolling.blogspot.com/ "Bart's Software Cookbook on Blogspot.com") to [Github Pages](https://pages.github.com/ "Github Pages"). I could have done it the traditional way and just uploaded html files, but Github Pages support blogging with [Jekyll](https://jekyllrb.com/ "Jekyll") using _beautifull_ markdown so that's what I wanted to try out.
+Since some time I've been planning to move my blog away from [blogspot](https://bartjolling.blogspot.com/ "Bart's Software Cookbook on Blogspot.com") to [Github Pages](https://pages.github.com/ "Github Pages"). I could have done it the traditional way and uploaded html files, but Github Pages support blogging with [Jekyll](https://jekyllrb.com/ "Jekyll") using _beautifull_ markdown (sic) so that's what I wanted to try out.
 
 ## Context
 
@@ -22,7 +22,7 @@ The WSL is a pre-requisite for running a Linux distro that can run Jekyll. To in
 - Open the Settings App 
 - Click 'Apps'
 - In the left pane, below the 'Apps' title, click 'Apps & Features'
-- In the right pane, below the 'Related settings title', click 'Programs and Features'
+- In the right pane, below the 'Related settings' title, click 'Programs and Features'
 - In the left pane, click 'Turn Windows Features on or off'
 - Scroll down until you encounter 'Windows Subsystem for Linux' 
 - Make sure that the checkbox on its left is checked
@@ -52,18 +52,19 @@ sudo apt-get install ruby2.5 ruby2.5-dev build-essential dh-autoreconf
 sudo gem update
 ~~~~
 
-Then install Jekyll itself and check if it works
+Then install Jekyll itself and check if it works:
 ~~~~ shell
 sudo gem install jekyll bundler
-jekyll -v
 bundle config path vendor/bundle
+jekyll -v
 ~~~~
+The last command should output the version number.
 
 ## Setting up a GitHub repository to host your Github pages
 
 If you don't have a GitHub account, you can [sign up here](https://github.com/join).
 
-Follow the guide a [Github Pages](https://pages.github.com/ "GitHub Pages"):
+Follow the guide on [Github Pages](https://pages.github.com/ "GitHub Pages"):
 - Create a repository, named "_github_username_.github.io" 
   * where _github_username_ is your GitHub username
   * In my case, the repository is called "[bartjolling.github.io](https://github.com/BartJolling/BartJolling.github.io)"
@@ -145,7 +146,6 @@ If you have installed the "github-pages" gem in your Gemfile, you can pick any t
 
 ## Build and serve the site locally
 Open a second Bash in WSL, navigate to the folder of the website and start the Jekyll process:
-
 ~~~~ shell
 cd github_username.github.io
 bundle exec jekyll serve
