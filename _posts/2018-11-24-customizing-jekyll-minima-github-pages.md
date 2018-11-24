@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Customizing the Jekyll minima theme on Github Pages"
+date: 2018-11-24
 categories: blog
 tags: [jekyll, minima, github pages]
 ---
@@ -14,6 +15,24 @@ Jekyll comes with some plugings, for example
 - [rouge](https://github.com/jneen/rouge "rouge"): a pure-ruby syntax highlighter 
 - [disqus](https://disqus.com/ "Disqus"): a comment plugin
 
+### Markdown and Syntax Highlighting
+The default Markdown renderer for Jekyll is kramdown. The other one is [Redcarpet](https://github.com/vmg/redcarpet) but Github has dropped support for it in 2016.
+
+The configuration options for kramdown are [listed here](https://jekyllrb.com/docs/configuration/markdown/ "kramdown configuration"). For example you can configure kramdown for Github Flavored Markdown (GFM) with 'rouge' as the syntax highlighter like this:
+
+```` yaml
+markdown: kramdown
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+````
+
+Ever since GitHub pages have upgraded Jekyll to version 3 you can use Rouge as your default syntax highlighter, like this:
+```` yaml
+markdown: kramdown
+highlighter: rouge
+````
 
 ### Enabling Disqus comments
 To enable Disqus, you first need to set up and account and configure it for your site:
@@ -26,10 +45,10 @@ To enable Disqus, you first need to set up and account and configure it for your
 - Configure Disqus and point it to your Github pages website
 - Go into your _config.yml file and add following lines
 
-```yaml
+```` yaml
   disqus:
     shortname: my_disqus_shortname
-```
+````
 
 
 

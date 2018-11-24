@@ -21,9 +21,11 @@ url: "https://bartjolling.github.io"
 github_username: BartJolling
 disqus:
   shortname: bartjolling
+google_analytics: UA-129705373-1
 
 # Build settings
 markdown: kramdown
+highlighter: rouge
 theme: minima
 plugins:
   - jekyll-feed
