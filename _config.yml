@@ -19,6 +19,8 @@ description: Architect, Developer, Coach, Problem Solver
 baseurl: "" # the subpath of your site, e.g /blog
 url: "https://bartjolling.github.io"
 github_username: BartJolling
+disqus:
+  shortname: bartjolling
 
 # Build settings
 markdown: kramdown

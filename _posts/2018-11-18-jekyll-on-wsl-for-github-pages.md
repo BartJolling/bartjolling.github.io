@@ -1,22 +1,23 @@
 ---
 layout: post
 title:  "Building Github Pages with Jekyll on the Windows Subsystem for Linux"
-categories: [Jekyll] 
+categories: Blog
+tags: [Jekyll, Github Pages, Windows Subsystem for Linux] 
 ---
 
-# Introduction
+## Introduction
 
 Since some time I've been planning to move my blog away from [blogspot](https://bartjolling.blogspot.com/ "Bart's Software Cookbook on Blogspot.com") to [Github Pages](https://pages.github.com/ "Github Pages"). I could have done it the traditional way and just uploaded html files, but Github Pages support blogging with [Jekyll](https://jekyllrb.com/ "Jekyll") using _beautifull_ markdown so that's what I wanted to try out.
 
-# Context
+## Context
 
 I've been a Windows developer and power user for a long time so I wanted to make this work on my Windows 10 machine. Jekyll is a Ruby application that can run on Windows 10 natively (but with a bunch of caveats) or within the Windows Subsystem for Linux (WSL). The latter is something I've been wanting to give a spin anyway and the Jekyll devs seems reasonably comfortable with that option so that is what I went for.
 
-# Install Jekyll via Bash on Windows 10
+## Install Jekyll via Bash on Windows 10
 
 Following the guide at [Jekyll's Windows Installation page](https://jekyllrb.com/docs/installation/windows/#installation-via-bash-on-windows-10):
 
-## Activate the Windows Subsystem for Linux (WSL)
+### Activate the Windows Subsystem for Linux (WSL)
 The WSL is a pre-requisite for running a Linux distro that can run Jekyll. To install:
 - Open the Settings App 
 - Click 'Apps'
@@ -27,7 +28,7 @@ The WSL is a pre-requisite for running a Linux distro that can run Jekyll. To in
 - Make sure that the checkbox on its left is checked
 - Click 'OK'. This will probably require you to reboot your machine
 
-## Install Ubuntu 18.04 LTS on the WSL
+### Install Ubuntu 18.04 LTS on the WSL
 Ubuntu can be installed directly from the Microsoft Store:
 - Open the Microsoft Store App
 - Search for "Ubuntu"
@@ -38,7 +39,7 @@ Ubuntu can be installed directly from the Microsoft Store:
 - You will be prompted you for a user name and password. 
   * They don't have to match your Windows account.
 
-## Install Ruby in Ubuntu
+### Install Ruby in Ubuntu
 From here, follow the steps as outlined in the [Jekyll installation guide](https://jekyllrb.com/docs/installation/windows/#installation-via-bash-on-windows-10).
 
 Jekyll needs the Ruby runtime to function correctly and the Jekyll themes for Github Pages depend on zlib:
@@ -58,7 +59,7 @@ jekyll -v
 bundle config path vendor/bundle
 ~~~~
 
-# Setting up a GitHub repository to host your Github pages
+## Setting up a GitHub repository to host your Github pages
 
 If you don't have a GitHub account, you can [sign up here](https://github.com/join).
 
@@ -75,13 +76,13 @@ Follow the guide a [Github Pages](https://pages.github.com/ "GitHub Pages"):
 git clone https://github.com/github_username/github_username.github.io
 ~~~~
 
-# Scaffold a Jekyll site - choosing a theme
+## Scaffold a Jekyll site - choosing a theme
 
 Depending on what kind of website you want to create, the procedure is slightly different although you can mix and match as you please. 
 - For my personal website with a blog, I'm using the default minima theme. This theme supports layouts for a main homepage, regular pages and blog posts out of the box.
 - For a project website, I would use one of the custom Github Jekyll themes.
 
-## Option 1: Scaffold a personal site - minima theme
+### Option 1: Scaffold a personal site - minima theme
 
 In Bash from your user's home folder, execute the following command to initialize a template site, replacing github_username with your actual Github username:
 
@@ -91,7 +92,7 @@ jekyll new github_username.github.io
 
 This will create the files Jekyll requires to build the site, an index page and some sample pages and posts. The default Gemfile that is created uses the "jekyll" gem which is sufficient so there is no need to change it. 
 
-## Option 2: Scaffold a project site - custom theme
+### Option 2: Scaffold a project site - custom theme
 In this option you will have to create the required files yourself, starting with the Gemfile. 
 
 ~~~~ shell
@@ -104,7 +105,7 @@ My Gemfile looks like this:
 source "https://rubygems.org"
 gem "github-pages", group: :jekyll_plugins
 
-# If you have any plugins, put them here!
+## If you have any plugins, put them here!
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.6"
 end
@@ -117,7 +118,7 @@ bundle install
 bundle update
 ~~~~
 
-## Configure Jekyll site generation
+### Configure Jekyll site generation
 Using nano, create a _config.yml or adjust the settings in the existing _config.yml to match your site.
 
 ~~~~ shell
@@ -142,7 +143,7 @@ plugins:
 
 If you have installed the "github-pages" gem in your Gemfile, you can pick any theme from [this list](https://pages.github.com/themes/), instead of minima.
 
-# Build and serve the site locally
+## Build and serve the site locally
 Open a second Bash in WSL, navigate to the folder of the website and start the Jekyll process:
 
 ~~~~ shell
@@ -152,7 +153,7 @@ bundle exec jekyll serve
 
 This will build the site and host it on [http://localhost:4000](http://localhost:4000) which you can access from a browser on your Windows 10 machine.
 
-# Publish to Github and build Github page
+## Publish to Github and build Github page
 Make sure that the vendor folder is ignored by git. You only need to do this once:
 ~~~~ shell
 echo 'vendor/' >> .gitignore
