@@ -1,0 +1,216 @@
+---
+layout: post
+title: Building Single Page Apps with ASP.NET MVC4 - Part 4 - Sorting, Filtering and
+  Manipulating data with upshot.js
+date: '2012-04-03T15:33:00.000+02:00'
+author: Bart Jolling
+tags:
+- JavaScript
+- ASP.NET MVC 4
+- Knockout
+- Single Page Application
+- Upshot
+modified_time: '2012-06-29T12:37:59.649+02:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-7019698928458647200
+blogger_orig_url: https://bartjolling.blogspot.com/2012/04/building-single-page-apps-with-aspnet.html
+---
+
+<p>This blogpost is part of a series about building Single Page Applications using ASP.NET MVC 4 beta. When writing this post I assumed you have read the previous ones. The code snippets are just the incremental changes that are needed since the third. post I'd advise to just <a href="https://skydrive.live.com/redir.aspx?cid=92fec8e2df222664&resid=92FEC8E2DF222664!461&parid=92FEC8E2DF222664!399&authkey=!ABTGvTyuGHf7e2Q">download the completed source code</a> directly</p>
+<ol>
+<li><a href="http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 1 - Basic Desktop application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 2 - Advanced Desktop Application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet_15.html">Single Page Applications - Part 3 - Basic Mobile Application</a></li>
+<li>Single Page Applications - Part 4 - Sorting, Filtering and Manipulation data with upshot.js</li>
+<li><a href="http://bartjolling.blogspot.nl/2012/06/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 5 - With MVC4 RC</a></li>
+</ol>
+<p>
+This post was more or less triggered by <a href="http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html?showComment=1332791743454#c3529157019636644461">this comment on my first post</a> in this series. James wanted to avoid creating GET functions for each single case. I already replied that he could take advantage of the OData features of WebApi but I think a dedicated post is needed since this is a topic where upshot is showing its limitations.
+</p>
+<h3>Updating to the latest packages</h3>
+First thing I did -starting from the code from my previous post- was to upgrade all packages to the latest version. I had to rename the existing <em>upshot.knockout.extensions.js</em> file before updating, since I had modified it and the package manager would skip it instead of updating it. Since I'm working with C#, I used this command in the package manager console
+<pre class="brush:text;">
+Install-Package SinglePageApplication.CSharp
+</pre>
+<p>
+This will upgrade some dependencies and add new files such as T4 templates to the project. You will need to update some of the links to javascript files because for example <em>knockout-2.0.0.js</em> is upgraded and renamed to simply <em>knockout.js</em>. I also created a namespace 'deliveryTracker' and put my DeliveriesViewModel in it.</p>
+<p>After the package update the UpshotContext HtmlHelper function is now available. So in my desktop and mobile views I can now replace the Javascript call to upshot.metadata with following code:
+<pre class="brush:js;">
+@(Html.UpshotContext(bufferChanges: true)
+          .DataSource&lt;DeliveryTracker.Controllers.DataServiceController&gt;
+                  (x =&gt; x.GetDeliveriesForToday())
+          .ClientMapping&lt;DeliveryTracker.Models.Customer&gt;
+                  (&quot;deliveryTracker.Customer&quot;)
+          .ClientMapping&lt;DeliveryTracker.Models.Delivery&gt;
+                  (&quot;deliveryTracker.Delivery&quot;)
+)
+
+&lt;script type=&quot;text/javascript&quot;&gt;
+    $(function () {
+        var model = new deliveryTracker.DeliveriesViewModel();
+        ko.applyBindings(model);
+    });
+&lt;/script&gt;
+</pre>
+<p>This will generate javascript that calls upshot.metadata and also sets up a remote datasource called 'DeliveriesForToday. This means I can now remove the code that creates a new RemoteDataSource in the constructor of my DeliveryViewModel and get it from upshot.dataSources.DeliveriesForToday</p>
+<pre class="brush:js;">
+/// &lt;reference path=&quot;_references.js&quot; /&gt;
+(function (window, undefined) {
+    var deliveryTracker = window[&quot;deliveryTracker&quot;] = {};
+
+    deliveryTracker.DeliveriesViewModel = function () {
+
+        // ... snip
+
+        self.dataSource = upshot.dataSources.DeliveriesForToday;
+
+        // ... snip
+    };
+
+    deliveryTracker.MobileDeliveriesViewModel = function () {
+        //inherit from DeliveriesViewModel
+        var self = this;
+        deliveryTracker.DeliveriesViewModel.call(self);
+
+        // ... snip
+    };
+
+    // ... snip ...
+
+    window[&quot;deliveryTracker&quot;] = deliveryTracker;
+})(window);
+</pre>
+<p>Note the calls to the ClientMapping functions which are used to indicate that I want to map the incoming data to the Customer and Delivery objects that I have created in javascript</p>
+<h3>Sorting and Filtering when fetching data</h3>
+<pre class="brush:js;">
+        // Initialize remote and local datasource
+        self.dataSource = upshot.dataSources.DeliveriesForToday;
+        self.dataSource.setFilter({ property: &quot;IsDelivered&quot;, 
+                                    operator: &quot;==&quot;, value: false } ); //,
+        self.dataSource.setSort({ property: &quot;Customer/Name&quot;, descending: false });
+        self.dataSource.refresh();
+</pre><p>The remoteDatasource is built on top of an OData service. The above request will generate this HTTP GET</p>
+<pre class="brush:text;">
+&nbsp;
+GET http://localhost:61907/api/DataService/GetDeliveriesForToday?%24filter=IsDelivered+eq+false&%24orderby=Customer%2FName HTTP/1.1
+X-Requested-With: XMLHttpRequest
+Accept: application/json, text/javascript, */*; q=0.01
+Referer: http://localhost:61907/
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)
+Host: localhost:61907
+Connection: Keep-Alive
+</pre><p>Note how you can sort and filter on a property of an associated entity by using a forward slash (...property: "Customer/Name"...) because this is supported by OData. The data also got filtered so the browser only received those deliveries where the IsDelivered property was set to false. Unfortunately upshot does not expose the full power of OData to the client application.</p>
+
+<h3>Sorting and Filtering the local data</h3>
+Once data is loaded into the browser it can still be manipulated. In order to see the effect of a manipulation while data is being edited, I decided to set the 'allowRefreshWithEdits: true' property on the local datasource. This lets me sort or group the data when edits are still pending (not uploaded back to the server).
+<pre class="brush:js;">
+self.localDataSource = upshot.LocalDataSource({ source: self.dataSource, 
+                        autoRefresh: true, allowRefreshWithEdits: true });
+
+self.deliveries = self.localDataSource.getEntities();
+self.deliveriesForCustomer = self.deliveries.groupBy(&quot;Customer&quot;);
+</pre>
+<p>In order to demonstrate sorting and grouping on the local data, I thought it would be fun to include the geolocation capabilities of the current browsers. If a user allows the application to read his current location, the application will sort the data by 'distance from user'. </p>
+<p>I added latitude and longitude data to the  my server-side Customer domain entity. This entity and the Delivery entity are both mapped to their javascript counterparts, like so:</p>
+<pre class="brush:js;highlight:[21,22]">
+deliveryTracker.Customer = function (data) {
+ var self = this;
+
+ self.CustomerId = ko.observable(data.CustomerId);
+ self.Name = ko.observable(data.Name);
+ self.Address = ko.observable(data.Address);
+ self.Latitude = ko.observable(data.Latitude);
+ self.Longitude = ko.observable(data.Longitude);
+
+ //only exists client-side
+ self.DistanceFromMe = ko.observable(&#39;unknown&#39;);
+
+ upshot.addEntityProperties(self, &quot;Customer:#DeliveryTracker.Models&quot;);
+};
+
+deliveryTracker.Delivery = function (data) {
+ var self = this;
+
+ self.DeliveryId = ko.observable(data.DeliveryId);
+ self.CustomerId = ko.observable(data.CustomerId);
+ self.Customer = ko.observable(data.Customer ? 
+             new deliveryTracker.Customer(data.Customer) : null);
+ self.Description = ko.observable(data.Description);
+ self.IsDelivered = ko.observable(data.IsDelivered);
+
+ upshot.addEntityProperties(self, &quot;Delivery:#DeliveryTracker.Models&quot;);
+};
+</pre>
+<p>It's important to note that upshot will map the Delivery object automatically <strong>but not the Customer object</strong> even when specifying it in the ClientMapping function on the UpshotContext. So whenever upshot tries to map the Delivery object, I create an observable Customer object myself. See the highlighted lines above</p>
+
+<p>Now add this to the constructor of the DeliveriesViewModel:</p>
+<pre class="brush:js;">
+var self = this;
+var self.position
+// Initialize geolocation
+if (navigator.geolocation) {
+ self.deliveries.subscribe(CalculateDistanceFromMe); //data is refreshed
+ self.position.subscribe(CalculateDistanceFromMe);   //position is refreshed
+
+ navigator.geolocation.getCurrentPosition(function (position) {
+  self.position(position);
+ });
+}
+
+// Recalculate distance from deliverer when data or geolocation changes
+function CalculateDistanceFromMe() {
+
+ if (self.position() &amp;&amp; self.deliveriesForCustomer 
+            &amp;&amp; self.deliveriesForCustomer().length &gt; 0) {
+
+  //calculate and update distances
+  ko.utils.arrayForEach(self.deliveriesForCustomer(), 
+                                           function (keyValuePair) {
+   var customer = keyValuePair.key;
+   var dist = geolocationUtils.calculateDistance(
+                                           self.position().coords.latitude, 
+                                           self.position().coords.longitude, 
+                                           customer.Latitude(), 
+                                           customer.Longitude());
+   customer.DistanceFromMe(dist.toFixed(2));
+  });
+
+  //sort local datasource on DistanceFromMe ascending
+  self.localDataSource.setSort(function (delivery1, delivery2) {
+   var value1 = delivery1.Customer().DistanceFromMe();
+   var value2 = delivery2.Customer().DistanceFromMe();
+   return (value1 - value2);
+  });
+                self.localDataSource.refresh(); //trigger refresh with sorting
+
+  //sort data grouped by customer
+  self.deliveriesForCustomer().sort(function (left, right) {
+   var value1 = left.key.DistanceFromMe();
+   var value2 = right.key.DistanceFromMe();
+   return (value1 - value2);
+  });
+ };
+};
+</pre><p>So what's happening:</p>
+<ul>
+<li>self.position is a <a href="http://www.knockoutjs.com/">knockout</a> (ko) observable that holds the current location.</li>
+<li>CalculateDistanceFromMe is triggered when self.position or self.deliveries gets updated</li>
+<li>calculateDistance is a function I found on <a href="http://www.html5rocks.com/en/tutorials/geolocation/trip_meter/">HTML5 Rocks</a> and wrapped in the 'geolocationUtils' namespace. It is called for each customer when the data gets refreshed</li>
+<li>The calculated distance is stored in the client-side observable customer.DistanceFromMe property</li>
+<li>Sorting on the localDataSource passes a sorting function to the setSort method on the dataSource.</li>
+<li>Sorting on the deliveriesForCustomer passes a sorting function to the sort method off the knockout observable array (wrapper around javascript arrays)</li>
+</ul>
+<h3>Conclusions</h3>
+<p>Sorting is a tricky subject when mixing technologies like Microsoft is doing in this beta release of Single Page Applications. Different objects allow different features depending on which part of the abstraction leaks through</p>
+<p>The <strong>remoteDataSource</strong> object is leaking OData conventions so when sorting or filtering you need to comply with the OData <a href="http://www.odata.org/developers/protocols/uri-conventions#OrderBySystemQueryOption">Orderby</a> and <a href="http://www.odata.org/developers/protocols/uri-conventions#FilterSystemQueryOption">Filter</a> uri-conventions. For example you can easily sort on the Customer/Name property of an entityset of Delivery objects.</p>
+<p>The <strong>localDataSource</strong> object however has its own implementation of sorting, filtering and grouping. Besides passing a sorting function, it also allows passing in a property name. So you can sort on the CustomerId of an entityset (of Delivery objects) but you cannot sort on Customer/Name</p>
+<p>The <strong>GetEntities</strong> method on a localDataSource returns a <a href="http://knockoutjs.com/documentation/observableArrays.html">Knockout observableArray</a>. This object exposes a wrapper around the built-in javascript arrays and exposes the same functionality which again is different from the remote or local datasources.</p>
+<p>What annoys me is that knockout and javascript both have a syntax for navigating associated entities, being the dot operator. If a remoteDataSource allows to sort by "Customer/Name", at least the localDataSource should expose the same interface. Also when binding data into the UI, you can easily do the following:
+<pre class="brush:html;">
+<em data-bind="text: Customer().Name"></em>
+</pre>
+<p>So navigating the associated entities using the dot operator works fine when data-binding but not when sorting, filtering, grouping, ...</p>
+<p>As the Single Page Application are still in an early phase I suppose this is to be expected. In my opinion it's still way too soon to use upshot in its current form in any serious development.</p>
+<h3>Download the source code</h3>
+You can <a href="http://sdrv.ms/L01N3W">download the code</a> (Visual Studio 2010 project) from my Skydrive

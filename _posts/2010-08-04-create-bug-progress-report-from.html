@@ -1,0 +1,107 @@
+---
+layout: post
+title: Create a bug progress report from a Sharepoint 2003 bug list
+date: '2010-08-04T21:06:00.022+02:00'
+author: Bart Jolling
+tags:
+- Sharepoint
+modified_time: '2012-02-23T09:43:27.763+01:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-5252296642751447676
+blogger_orig_url: https://bartjolling.blogspot.com/2010/08/create-bug-progress-report-from.html
+---
+
+<p>Sharepoint 2003 includes a list template for bug tracking. It provides very basic functionality like keeping bug statuses, description, comments, dates, assignments etc. For every update that is made to a bug report, Sharepoint just adds a new item to the list. It doesn't however include a bug progress report.
+</p><p>In order to create such a report, I will create a new view on the bug report list in Sharepoint in order to expose the necessary information. In MS Access I will created a linked table that allows us to perform queries on the data to put it in the correct format for use in a pivot table. This pivot table and pivot chart will contain the bug progress report.
+</p>
+<span style="font-size:130%;">Sharepoint bug reports: progress details</span><p>
+On the sharepoint bug list, create a new view containing the following fields:
+<ul><li>Id</li><li>Issue Id</li><li>Status</li><li>Modified</li><li>Current</li></ul>This will give you the entire history for every Issue but from this information you can't yet determine when a bug changed from one status to another.</p><p><span style="font-size:130%;">MS Access linked tables</span></p><p>In order to create a bug progress report, we need to build a list of status changes for each of the issues. I have created four queries for the different situations that can occur.</p><p>The "StatusSequenceHistory" query determines the sequence of Ids of bug reports for each Issue Id. For each change it collects what Id was changed (FromId) and which new Id was created (ToId)</p>
+<pre class="brush: sql;">
+SELECT fr.[Issue Id] AS IssueId,
+       fr.Id AS FromId,
+       fr.Status AS FromStatus,
+       min(to.Id) AS ToId
+FROM [Bug Reports: Progress Details] AS fr
+LEFT JOIN [Bug Reports: Progress Details] AS [to]
+ON fr.[Issue Id]=to.[Issue Id]
+WHERE fr.Id &lt; to.Id
+  AND to.Current=False
+  AND fr.Current=False
+GROUP BY fr.[Issue Id], fr.Id, fr.Status
+ORDER BY fr.[Issue Id], fr.id;</pre><p>Not all status will have a ToId and a FromId. The "StatusSequenceNew" query selects bug reports that have just been created but do not have a history yet.</p>
+<pre class="brush: sql;">
+SELECT [Issue Id] AS IssueId, min(Id) AS ToId
+FROM [Bug Reports: Progress Details]
+GROUP BY [Issue Id]
+HAVING Count(Id) = 1;
+</pre>
+
+<p>The "StatusSequenceFirst" query selects the very first bug report that was created.</p>
+<pre class="brush: sql;">
+SELECT [Issue Id] AS IssueId, min(Id) AS ToId
+FROM [Bug Reports: Progress Details]
+WHERE Current=False
+GROUP BY [Issue Id];</pre><p>The "StatusSequenceLast" query selects the final bug report that was created which in fact is the current version of the bug report</p>
+<pre class="brush: sql;">
+SELECT fr.[Issue Id] AS IssueId,
+       max(fr.Id) AS FromId,
+       to.Status AS ToStatus,
+       to.Id AS ToId
+FROM [Bug Reports: Progress Details] AS fr
+LEFT JOIN [Bug Reports: Progress Details] AS [to]
+ON fr.[Issue Id]=to.[Issue Id]
+WHERE fr.Id &gt; to.Id
+AND to.Current=True
+AND fr.Current=False
+GROUP BY fr.[Issue Id], to.id, to.Status
+ORDER BY fr.[Issue Id], to.id;
+</pre>
+
+<p><strong>The StatusSequence query</strong></p><p>This query joins the complete history together and adds the status for each change</p><pre class="brush: sql;">(
+SELECT IssueId,FromId, FromStatus, ToId, det.Status as ToStatus
+FROM StatusSequenceHistory old
+LEFT JOIN [Bug Reports: Progress Details] det
+ON old.ToId = det.Id
+)
+UNION (
+SELECT IssueId,FromId, det.Status as FromStatus, ToId, ToStatus
+FROM StatusSequenceLast cur
+LEFT JOIN [Bug Reports: Progress Details] det
+ON cur.FromId = det.Id
+)
+UNION (
+SELECT IssueId, NULL as FromId, NULL as FromStatus, ToId, det.Status as ToStatus
+FROM StatusSequenceFirst fir
+LEFT JOIN [Bug Reports: Progress Details] det
+ON fir.ToId =det.Id
+)
+UNION (
+SELECT IssueId, NULL as FromId, NULL as FromStatus, ToId, det.Status as ToStatus
+FROM StatusSequenceNew new
+LEFT JOIN [Bug Reports: Progress Details] det
+ON new.ToId =det.Id
+);
+</pre><p><strong>The ProgressReport query</strong></p><p>This query adds the number of status changes for each change and for each day</p>
+<pre class="brush: sql;">(
+SELECT Int(d.Modified) AS ModifiedDate, 
+       s.FromStatus AS Status, 
+       -1 * COUNT(s.FromStatus) AS Diff
+FROM StatusSequence s
+RIGHT JOIN [Bug Reports: Progress Details] d
+ON s.ToId = d.Id
+WHERE s.FromStatus <> ''
+GROUP BY Int(d.Modified), s.FromStatus
+)
+UNION (
+SELECT Int(d.Modified) AS ModifiedDate, 
+       s.ToStatus AS Status, 
+       1 * COUNT(s.ToStatus) AS Diff
+FROM StatusSequence s
+LEFT JOIN [Bug Reports: Progress Details] d
+ON s.ToId = d.Id
+GROUP BY Int(d.Modified), s.ToStatus
+);
+
+</pre>
+<span style="font-size:130%;">Microsoft Excel: Bug progress report</span><p>
+In Excel you can now create a link to the MS Access database as an external source. Choose the PivotTable/PivotChart option when connecting. Put the Modified Date in the left column of the PivotTable, the Status in the upper row and the Issue Id as in the data fields. Configure the Ids in order to show as a running total</p>

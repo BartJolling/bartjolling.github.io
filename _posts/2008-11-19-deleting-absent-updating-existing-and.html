@@ -1,0 +1,99 @@
+---
+layout: post
+title: Deleting absent, updating existing and inserting new rows in a table
+date: '2008-11-19T13:39:00.027+01:00'
+author: Bart Jolling
+tags:
+- SQL Server
+modified_time: '2012-02-23T09:58:20.215+01:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-554889094265618705
+blogger_orig_url: https://bartjolling.blogspot.com/2008/11/deleting-absent-updating-existing-and.html
+---
+
+<p>
+Synchronizing a table based on a flat files is one of the more common tasks when dealing with databases. It should be a straight forward task to delete removed records, update changed records and insert new records but I often encounter horrible ways of achieving this goal.
+</p><p>
+I recently came across an implementation using a DTS package with a data-driven task in SQL Server 2000. For each line in the file it would launch several queries to detect if it was a new, updated or unchanged record (all glued together with VBScript) and then launch the appropriate query to update the database.
+</p><p>Searching a bit on the internet I came across <a href="http://blogs.meetandplay.com/WPierce/archive/2006/12/22/Delete_Absent_RowsUpdate_Existing_RowsInsert_New_Rows.aspx">this simple solution</a>. The best way of doing this fast and reliably is by using the JOIN and LEFT JOIN clauses in your UPDATE, INSERT and DELETE commands to determine the status of the record. I would like to show my implementation of slightly more complicated requirements.
+</p>
+<H3>Preparation</H3>
+<p>
+First start by bulk inserting your data file into a staging table that has no constraints or indexes. This is the fastest way to get your data into the database. For the synchronisation queries (see below), you might want to consider using transactions if there is a risk of data corruption. You could also gain some speed by disabling the indexes while running the insert query.
+<BR/><br/>
+In the following examples I will try to synchronize the <span style="font-style:italic;">accounts</span> table using the <span style="font-style:italic;">tmp_accounts</span> table as the staging table.
+
+</p><H3>
+Deleting removed rows
+</H3>
+<pre class="brush:sql;">
+DELETE accounts 
+FROM accounts acc LEFT JOIN tmp_accounts tmp
+ON  acc.category = tmp.category
+AND acc.code     = tmp.code
+WHERE acc.code IS NULL
+   OR acc.category IS NULL
+</pre>
+<p>
+Fields <span style="font-style:italic;">code</span> and <span style="font-style:italic;">category</span> together uniquely define an account.<br/>
+Using the LEFT JOIN with the FROM clause will ensure that all records from the <span style="font-style:italic;">accounts</span> table are selected, even if they don't exist in <span style="font-style:italic;">tmp_accounts</span>. The records that don't exist in <span style="font-style:italic;">tmp_accounts</span> will have a NULL value for every field. So all records that exist in the <span style="font-style:italic;">accounts</span> table but have NULL values in their <span style="font-style:italic;">tmp_accounts</span> fields, need to be deleted.
+</p><H3>
+Updating changed rows
+</H3>
+<pre class="brush:sql;">
+UPDATE accounts SET
+  description = tmp.description,
+  type        = tmp.type,
+  section     = tmp.section,
+  audit_date  = tmp.audit_date,
+  audit_user  = tmp.audit_user
+FROM accounts     acc
+JOIN tmp_accounts tmp
+ON  acc.category = tmp.category
+AND acc.code     = tmp.code
+WHERE acc.description <> tmp.description
+   OR acc.type        <> tmp.type
+   OR acc.section     <> tmp.section
+</pre>
+<p>
+By using the JOIN clause, we are sure to work only on records that exist in both the <span style="font-style:italic;">accounts</span> table and the <span style="font-style:italic;">tmp_accounts</span> table. Accounts need to be update in case their description, type or section has changed.</p><p>Audit_user and audit_date are automatically filled in the <span style="font-style:italic;">tmp_accounts</span> table using a DEFAULT and are always kept up-to-date in the <span style="font-style:italic;">accounts</span> table.
+</p><H3>
+Inserting new rows
+</H3>
+<pre class="brush:sql;">
+INSERT INTO accounts
+( category,
+  code,
+  description, 
+  type,
+  section,
+  title_only, 
+  division,
+  override,
+  allow_manual_entry, 
+  audit_date, 
+  audit_user
+)
+SELECT
+  tmp.category,
+  tmp.code, 
+  tmp.description,
+  tmp.type,
+  tmp.section,
+  tmp.title_only, 
+  tmp.division,
+  tmp.override,
+  tmp.allow_manual_entry, 
+  tmp.audit_date,
+  tmp.audit_user
+FROM tmp_accounts  tmp
+LEFT JOIN accounts acc
+ON  tmp.category = acc.category
+AND tmp.code     = acc.code
+WHERE acc.code IS NULL
+   OR acc.category IS NULL
+</pre>
+<p>
+Using a LEFT JOIN makes sure we are working with all records in the <span style="font-style:italic;">tmp_accounts</span> table, even if they don't exist in the <span style="font-style:italic;">accounts</span> table. Records that don't exist in the <span style="font-style:italic;">accounts</span> table will have NULL values for all of their fields. So all records that exist in <span style="font-style:italic;">tmp_accounts</span> and have NULL values for the <span style="font-style:italic;">accounts</span> fields, have to be inserted.
+<br/><br/>
+Audit_user and audit_date are automatically filled in the <span style="font-style:italic;">tmp_accounts</span> table using a DEFAULT and are always kept up-to-date in the <span style="font-style:italic;">accounts</span> table
+</p>

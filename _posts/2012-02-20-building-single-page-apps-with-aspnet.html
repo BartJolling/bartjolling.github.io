@@ -1,0 +1,187 @@
+---
+layout: post
+title: Building Single Page Apps with ASP.NET MVC4 - Part 1 - Basic Desktop Application
+date: '2012-02-20T21:22:00.001+01:00'
+author: Bart Jolling
+tags:
+- ASP.NET MVC 4
+- Knockout
+- Single Page Application
+- Upshot
+modified_time: '2013-01-22T13:46:41.323+01:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-9013561871397956859
+blogger_orig_url: https://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html
+---
+
+This blog entry is mainly based on the presentation given by Steven Sanderson on TechDays 2012 called “<a href="http://channel9.msdn.com/Events/TechDays/Techdays-2012-the-Netherlands/2159" target="_blank">Building Single Page Apps for desktop, mobile and tablet with ASP.NET MVC 4</a>”. Steven’s talk consisted of a large demo that immediately got me interested and made me want to try it out.<br />
+There was one big disappointment however. With <a href="http://weblogs.asp.net/jgalloway/archive/2012/02/16/asp-net-4-beta-released.aspx" target="_blank">the latest beta version of ASP.NET MVC 4</a> and information from <a href="http://www.asp.net/single-page-application" target="_blank">the official pages</a>, it was not possible to recreate Steven’s demo. In the following post, I’ll show what I had to do to get things to work. This is the first post of a series<br />
+<ol>
+<li>Single Page Applications - Part 1 - Basic Desktop application</li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 2 - Advanced Desktop Application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet_15.html">Single Page Applications - Part 3 - Basic Mobile Application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/04/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 4 - Sorting, Filtering and Manipulation data with upshot.js</a></li>
+<li><a href="http://bartjolling.blogspot.nl/2012/06/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 5 - With MVC4 RC</a></li>
+</ol><br/>
+<h3>
+New Project Template</h3>
+The ASP.NET MVC 4 beta adds a new project template in Visual Studio 2010 called “The “Single Page Application" (SPA). When creating a new project and starting it up, you’ll get some guidance about completing a first demo application for adding ToDoItems using a new TasksController. I will not do this but instead I will follow the same sequence as Steve did in his presentation and create a new SPA application called “DeliveryTracker”<br /><br/>
+<h3>
+Server side Domain Model</h3>
+Since this demo application is a tool to track deliveries we will be using the following datamodel. The Customer class shows how to define a one-to-many relationship.<br />
+<pre class="brush:csharp;">namespace DeliveryTracker.Models
+{
+    public class Customer
+    {
+        public int CustomerId { get; set; }
+
+        public string Name { get; set; }
+        public string Address { get; set; }
+    }
+
+    public class Delivery
+    {
+        public int DeliveryId { get; set; }
+        public virtual int CustomerId { get; set; }
+        public virtual Customer Customer { get; set; }
+
+        public string Description { get; set; }
+        public bool IsDelivered { get; set; }
+    }
+}
+</pre>
+In order to store delivery information in the database, we are using the Entity Framework Code First approach <br />
+<pre class="brush:csharp;">namespace DeliveryTracker.Models
+{
+    public class AppDbContext : DbContext
+    {
+        public DbSet&lt;Customer&gt; Customers { get; set; }
+        public DbSet&lt;Delivery&gt; Deliveries { get; set; }
+    }
+}
+</pre><br/>
+<h3>
+Web API Data Service</h3>
+The data for the application is loaded from a DbDataController which was introduced with the new <a href="http://www.asp.net/web-api" target="_blank">Web API</a> feature. In the solution explorer, right-click the controller folder and add a new controller called “DataServiceController” based on the “Empty Controller” template. The purpose here is to show what is happening behind the scenes and not rely on scaffolding too much. Replace the parent Controller class by DbDataController using the AppDbContext as generic parameter.<br />
+<pre class="brush:csharp;">namespace DeliveryTracker.Controllers
+{
+    public class DataServiceController : DbDataController&lt;AppDbContext&gt;
+    {
+
+        public IQueryable&lt;Delivery&gt; GetDeliveriesForToday() 
+        {
+            return DbContext.Deliveries.Include("Customer")
+                            .OrderBy(x =&gt; x.DeliveryId);
+        }
+
+        public void InsertDelivery(Delivery delivery) 
+                  { InsertEntity(delivery); }
+        public void UpdateDelivery(Delivery delivery) 
+                  { UpdateEntity(delivery); }
+        public void DeleteDelivery(Delivery delivery) 
+                  { DeleteEntity(delivery); }
+    }
+}
+</pre>
+The GetDeliveriesForToday will be used by the page to load the data. The IQueryable type allows sorting, paging, filtering and passing in custom parameters. The other methods are necessary for inserting, updating and deleting entities. If you build and run now, you could run OData queries against the service on <a href="http://localhost/api/DataService/GetDeliveriesForToday">http://localhost/api/DataService/GetDeliveriesForToday</a><br /><br/>
+<h3>
+Client Side ViewModel -&nbsp; upshot.js &amp; knockout.js</h3>
+In order to use this data, the page will use the upshot.js javascript library that knows how to talk to a DbDataController. It will want to map your server side C# model in to a client-side javascript model. Steven has hidden this step behind his mysterious and undocumented Html.UpshotContext class.<br /><br/>
+Add a new “App” subfolder inside the “Scripts” folder and create a new script there called “DeliveryViewModel.js”. In the constructor of the DeliveriesViewModel, we are using upshot to make a connection to the GetDeliveriesForToday method in the DbDataController class. The results from the query are stored in the self.deliveries property.<br /><br/>
+Notice that the properties of the Customer and Delivery classes are knockout observables. Knockout keeps the data on your views and viewmodel synchronized. Upshot synchronizes with the data service. The bufferChanges option is set to false, meaning that any data that is changed on the web page will also be submitted to the server and saved directly in the database.<br />
+<pre class="brush:js;">/// &lt;reference path="_references.js" /&gt;
+
+function DeliveriesViewModel() {
+    // Private
+    var self = this;
+    var dataSourceOptions = {
+        providerParameters: { 
+          url: "/api/DataService", 
+          operationName: "GetDeliveriesForToday"
+        },
+        entityType: "Delivery:#DeliveryTracker.Models",
+        bufferChanges: false,
+        mapping : Delivery
+    };
+
+    // Public Properties
+    self.dataSource = new upshot.RemoteDataSource(dataSourceOptions)
+                                .refresh();
+    self.deliveries = self.dataSource.getEntities();   
+}
+
+function Customer (data) {
+    var self = this;
+
+    self.CustomerId = ko.observable(data.CustomerId);
+    self.Name = ko.observable(data.Name);
+    self.Address = ko.observable(data.Address);
+    upshot.addEntityProperties(self, "Customer:#DeliveryTracker.Models");
+}
+
+function Delivery (data) {
+    var self = this;
+
+    self.DeliveryId = ko.observable(data.DeliveryId);
+    self.CustomerId = ko.observable(data.CustomerId);
+    self.Customer = ko.observable(data.Customer);
+    self.Description = ko.observable(data.Description);
+    self.IsDelivered = ko.observable(data.IsDelivered);
+    upshot.addEntityProperties(self, "Delivery:#DeliveryTracker.Models");
+}</pre>
+<h3>
+Index View</h3>
+In order to trigger the upshot call to the service when the index.cshtml page is loaded, add this code below the title section. All the rest of the code is not needed and can be removed. The Html.MetaData function provides the structure of the types to upshot. Knockout applies the bindings to the DeliveriesViewModel<br />
+<pre class="brush:js;">&lt;script src="~/Scripts/upshot.js" 
+          type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="~/Scripts/knockout-2.0.0.js" 
+          type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="~/Scripts/nav.js" 
+          type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="~/Scripts/native.history.js" 
+          type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="~/Scripts/upshot.compat.knockout.js"
+          type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="~/Scripts/upshot.knockout.extensions.js" 
+          type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="~/Scripts/App/DeliveriesViewModel.js" 
+          type="text/javascript"&gt;&lt;/script&gt;
+
+&lt;script type="text/javascript"&gt;
+    $(function () {
+        upshot.metadata(@(Html.Metadata
+            &lt;DeliveryTracker.Controllers.DataServiceController&gt;()));
+
+        ko.applyBindings( new DeliveriesViewModel( ));
+    });
+&lt;/script&gt;</pre>
+We can now use the data that is loaded and bound to the DeliveriesViewModel in the HTML. Add this code below the javascript call<br />
+<pre class="brush:html;">&lt;section&gt;
+&lt;div&gt;
+&nbsp;&nbsp;&nbsp; &lt;h3&gt;Deliveries&lt;/h3&gt;
+&nbsp;&nbsp;&nbsp; &lt;ol data-bind="foreach: deliveries"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li data-bind="css: { highlight: IsDelivered}"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;strong data-bind="text: Description"&gt;&lt;/strong&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is for &lt;em data-bind="text: Customer().Name"&gt;&lt;/em&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;label&gt;
+               &lt;input data-bind="checked: IsDelivered" 
+                           type="checkbox"/&gt;
+               Delivered&lt;/label&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/li&gt;
+&nbsp;&nbsp;&nbsp; &lt;/ol&gt;
+&lt;/div&gt;
+&lt;/section&gt;</pre>
+<h3>
+Routing</h3>
+If you run this code, you will noticed that loading data from the database and displaying it on page works fine but submitting changes to the services fails. Investigating with Fiddler shows that the service responds to the submit request with the error “The service does not support the POST verb”<br /><br/>
+What Steven Sanderson also failed to mention is that you need to correct the 'MapHttpRoute' route in the routing table in global.asax.cs like this:<br />
+<pre class="brush:csharp;">            routes.MapHttpRoute(
+                "DataService", // Route name
+                "api/DataService/{action}", // URL with parameters
+                new { controller = "DataService" } // Parameter defaults
+            );</pre>
+So with the code above you can list the deliveries in the database and update the "IsDelivered" properties in real-time from a single page. All communication consists of AJAX calls handled by the upshot framework.<br />
+<br />
+<h3>
+Download the source code</h3>
+You can <a href="https://skydrive.live.com/redir.aspx?cid=92fec8e2df222664&amp;resid=92FEC8E2DF222664!400&amp;parid=92FEC8E2DF222664!399&amp;authkey=!ACc_clpHQCxRexY">download the code</a> (Visual Studio 2010 project) from my Skydrive<br />
+<br />

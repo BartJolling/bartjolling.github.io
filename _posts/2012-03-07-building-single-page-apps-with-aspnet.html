@@ -1,0 +1,195 @@
+---
+layout: post
+title: Building Single Page Apps with ASP.NET MVC4 - Part 2 - Advanced Desktop Application
+date: '2012-03-07T16:08:00.000+01:00'
+author: Bart Jolling
+tags:
+- ASP.NET MVC 4
+- Knockout
+- Single Page Application
+- Upshot
+modified_time: '2012-06-29T12:37:29.530+02:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-6579226049780583673
+blogger_orig_url: https://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet.html
+---
+
+This is the second article in a series about building single page applications using ASP.NET MVC4. I assume that you have read the first part.
+<ol>
+<li><a href="http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 1 - Basic Desktop application</a></li>
+<li>Single Page Applications - Part 2 - Advanced Desktop Application</li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet_15.html">Single Page Applications - Part 3 - Basic Mobile Application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/04/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 4 - Sorting, Filtering and Manipulation data with upshot.js</a></li>
+<li><a href="http://bartjolling.blogspot.nl/2012/06/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 5 - With MVC4 RC</a></li>
+</ol>
+<p>
+In part 1 I recreate the first part of a demo by Steven Sanderson that shows a list of deliveries on screen, allows a user to mark an item as delivered and have the results immediately sent back to the server. In this second part the application will also show the deliveries grouped by customer and uses "Save All" and "Revert All" buttons so that the user can decide when to update the back-end.
+</p>
+<h3>Group by Customer</h3>
+<p>In order to group deliveries by customer, you'll need to a bit of javascript code that can go over the observable 'deliveries' array and group them together based on the referenced customer. This grouped data needs to be observable too. Steven has released the following bit of javascript called <em>arrayUtils.js</em> in order to achieve this:</p><pre class="brush:js;">
+
+
+/// &lt;reference path=&quot;knockout.debug.js&quot; /&gt;
+
+(function () {
+    function firstWhere(array, condition) {
+        for (var i = 0; i &lt; array.length; i++)
+            if (condition(array[i]))
+                return array[i];
+    }
+
+    ko.observableArray.fn.groupBy = function (keySelector) {
+        if (typeof keySelector === &quot;string&quot;) {
+            var key = keySelector;
+            keySelector = function (x) 
+                          { return ko.utils.unwrapObservable(x[key]) };
+        }
+        var observableArray = this;
+
+        return ko.computed(function () {
+            var groups = [], array = observableArray();
+            for (var i = 0; i &lt; array.length; i++) {
+                var item = array[i],
+                existingGroup = firstWhere(groups, function (g) 
+                                { return g.key === keySelector(item) });
+                if (existingGroup)
+                    existingGroup.values.push(item);
+                else
+                    groups.push({ key: keySelector(item), values: [item] });
+            }
+            return groups;
+        })
+    }
+})();
+</pre>
+You can now add a new datasource to the <em>DeliveriesViewModel.js</em> like this:
+<pre class="brush:js;highlight:[2]">
+    self.deliveries = self.dataSource.getEntities();
+    self.deliveriesForCustomer = self.deliveries.groupBy("Customer");
+</pre>
+
+To show this new information on screen, add following code to <em>index.cshtml</em>. The groupBy operator has put every customer object on the "key" parameter and all his deliveries on the "values" parameter. <pre class="brush:html;">
+    &lt;h3&gt;Customers&lt;/h3&gt;
+    &lt;ul data-bind=&quot;foreach: deliveriesForCustomer&quot;&gt;
+        &lt;li&gt;
+            &lt;div&gt;Name: &lt;strong data-bind=&quot;text: key.Name&quot;&gt;&lt;/strong&gt;&lt;/div&gt;
+            &lt;ul data-bind=&quot;foreach: values&quot;&gt;
+                &lt;li data-bind=&quot;text: Description, 
+                                css: { highlight: IsDelivered }&quot;&gt;                
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;    
+    &lt;/ul&gt;
+</pre><p>
+If you would run the application now you will notice that knockout.js is keeping the values is the deliveries list and the customers list in sync.</p>
+<h3>Save, Revert, Exclude if delivered</h3>
+Upshot can be configured to NOT synchronize the changes to the backend, meaning the user will have to click a "Save" button when he wants to submit. There is also the possibility to undo the accumulated changes or to put a filter on the datasource.
+
+In order to enable above functionality, make the following changes to the <em>DeliveriesViewModel.js</em>
+<ul>
+<li>Set bufferChanges to true so that the upshot datasource will keep the changes in memory and not sync them with the back-end</li>
+<li>Create a self.localDataSource that we can use for client-side operations like filtering the data</li>
+<li>Create a self.excludeDelivered variable to keep track of the value of the checkbox saying the user wants to exclude already delivered items from the list</li>
+<li>Create the self.saveAll and self.revertAll function to commit or revert the changes on the upshot datasource</li>
+<li>Subscribe a function to the self.excludeDelivered observable that gets called everytime the value changes. Inside this function a new filter rule is created which is then applied to the local data source</li>
+</ul>
+<pre class="brush:js;highlight:[10]">
+/// &lt;reference path=&quot;_references.js&quot; /&gt;
+
+function DeliveriesViewModel() {
+    // Private
+    var self = this;
+    var dataSourceOptions = {
+        providerParameters: { url: &quot;/api/DataService&quot;,
+                    operationName: &quot;GetDeliveriesForToday&quot; },
+        entityType: &quot;Delivery:#DeliveryTracker.Models&quot;,
+        bufferChanges: true,
+        mapping : Delivery
+    };
+
+    // Public Properties
+    self.dataSource = new upshot.RemoteDataSource(dataSourceOptions).refresh();
+    self.localDataSource = upshot.LocalDataSource({ source: self.dataSource,
+                                               autoRefresh: true });
+
+    self.deliveries = self.localDataSource.getEntities();
+    self.deliveriesForCustomer = self.deliveries.groupBy(&quot;Customer&quot;);
+    self.excludeDelivered = ko.observable(false);
+
+    // Operations
+    self.saveAll = function () { self.dataSource.commitChanges() }
+    self.revertAll = function () { self.dataSource.revertChanges() }
+
+    // Delegates
+    self.excludeDelivered.subscribe(function (shouldExcludeDelivered) {
+        var filterRule = shouldExcludeDelivered 
+            ? { property: &quot;IsDelivered&quot;, operation: &quot;==&quot;, value: false }
+            : null;
+        self.localDataSource.setFilter(filterRule);
+        self.localDataSource.refresh();
+    });
+}
+</pre>
+<p>Include the new arrayUtils.js in the Index.cshtml file</p>
+<pre class="brush:html;highlight:[1,2]">
+&lt;script src=&quot;~/Scripts/arrayUtils.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/App/DeliveriesViewModel.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+</pre>
+To take advantage of the functionalities you can bind the view to the functions that have been put in place in the DeliveriesViewModel
+<ul>
+<li>Added two buttons of which knockout binds the click event to the appropriate functions in the DeliveriesViewModel</li>
+<li>The "Exclude Delivered items" checkbox bound to the 'excludeDelivered' property in the viewmodel</li>
+<li>The 'delivered' CSS class is bound to the existing 'IsDelivered' property which was foreseen on the view model. The 'updated' CSS class however is bound to the 'IsUpdated' property that comes built-in with the observable datasource</li>
+</ul>
+
+<pre class="brush:html">
+&lt;div&gt;
+    &lt;h3&gt;Deliveries&lt;/h3&gt;
+
+    &lt;button data-bind=&quot;click: saveAll&quot;&gt;Save All&lt;/button&gt;
+    &lt;button data-bind=&quot;click: revertAll&quot;&gt;Revert All&lt;/button&gt;
+
+    &lt;label&gt;
+        &lt;input data-bind=&quot;checked: excludeDelivered&quot; type=&quot;checkbox&quot; /&gt;
+         Exclude delivered items&lt;/label&gt;
+
+    &lt;ol data-bind=&quot;foreach: deliveries&quot;&gt;
+        &lt;li data-bind=&quot;css: { delivered: IsDelivered, 
+                                        updated: IsUpdated}&quot;&gt;
+            &lt;strong data-bind=&quot;text: Description&quot;&gt;&lt;/strong&gt;
+            is for &lt;em data-bind=&quot;text: Customer().Name&quot;&gt;&lt;/em&gt;
+            &lt;label&gt;&lt;input data-bind=&quot;checked: IsDelivered&quot; 
+                  type=&quot;checkbox&quot;/&gt;Delivered&lt;/label&gt;
+        &lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;h3&gt;Customers&lt;/h3&gt;
+    &lt;ul data-bind=&quot;foreach: deliveriesForCustomer&quot;&gt;
+        &lt;li&gt;
+            &lt;div&gt;Name: &lt;strong data-bind=&quot;text: key.Name&quot;&gt;&lt;/strong&gt;
+            &lt;/div&gt;
+            &lt;ul data-bind=&quot;foreach: values&quot;&gt;
+                &lt;li data-bind=&quot;text: Description, 
+                    css: { delivered: IsDelivered,
+                             updated: IsUpdated}&quot;&gt;                
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;    
+    &lt;/ul&gt;
+&lt;/div&gt;
+</pre>
+I've defined these new styles in Site.css
+<pre class="brush:html">
+.delivered
+{
+    text-decoration: line-through;
+    color: #008000;
+}
+
+.updated
+{
+    background-color: #FFFF00;
+}
+</pre><p>
+If you now mark items as delivered, they will get the 'delivered' AND 'updated' styles in both lists. These are nicely kept in sync by upshot. When the user clicks the "SaveAll" button, all changes will be submitted to the server and the 'updated' style will disappear. The "RevertAll" button undoes all the changes. Selecting "Exclude Delivered Items" will remove the delivered items from the shared datasource so they won't show up in either list.</p><h3>Download the source code</h3><p>You can <a href="https://skydrive.live.com/redir.aspx?cid=92fec8e2df222664&resid=92FEC8E2DF222664!453&parid=92FEC8E2DF222664!399&authkey=!ANN90ogRSODRCrw">download the code</a> (Visual Studio 2010 project file) from my SkyDrive</p>

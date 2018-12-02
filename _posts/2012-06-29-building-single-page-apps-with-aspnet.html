@@ -1,0 +1,149 @@
+---
+layout: post
+title: Building Single Page Apps with ASP.NET MVC4 - Part 5 - using ASP.NET MVC4 RC
+date: '2012-06-29T12:35:00.000+02:00'
+author: Bart Jolling
+tags:
+- JavaScript
+- ASP.NET MVC 4
+- Knockout
+- Single Page Application
+- Upshot
+modified_time: '2012-07-10T03:18:22.420+02:00'
+thumbnail: http://2.bp.blogspot.com/-U3Qu9pwrW8w/T_Plese64oI/AAAAAAAAAFk/zY2PM0gqw_s/s72-c/PMSettingsSource.png
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-6145255303779663471
+blogger_orig_url: https://bartjolling.blogspot.com/2012/06/building-single-page-apps-with-aspnet.html
+---
+
+<p>This blogpost is part of a series about building Single Page Applications using ASP.NET MVC 4. Parts 1 through 4 use ASP.NET MVC4 beta but this post will focus on building SPA after upgrading to ASP.NET MVC 4 RC</p>
+<ol>
+<li><a href="http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 1 - Basic Desktop application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 2 - Advanced Desktop Application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet_15.html">Single Page Applications - Part 3 - Basic Mobile Application</a></li>
+<li><a href="http://bartjolling.blogspot.nl/2012/04/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 4 - Sorting, Filtering and Manipulation data with upshot.js</a></li>
+<li>Single Page Applications - Part 5 - Using ASP.NET MVC4 RC</li>
+</ol><p>
+In the release candidate for <a href="http://www.asp.net/mvc/mvc4">ASP.NET MVC 4</a>, Microsoft decided to remove the Single Page Application template and supporting files. This was no surprise as I already concluded in part 4 of this series that SPA was far from being ready.</p><p>
+So how do you build an SPA after installing MVC4 RC? <a href="http://peterporfy.wordpress.com/2012/06/18/deliverytracker-with-asp-net-mvc-4-rc/">Peter Porfy described one solution on his blog</a>. Essentially he is taking the latest nightly build of ASP.MVC4 and correcting the errors. The downside to his solution is that it looks like a lot of work and this is still very unstable.</p><p>
+The key to my solution lies in the fact that SPA written against ASP.NET MVC4 beta, still run on machines with only the MVC4 RC installed. All the SPA essentials can be found in NuGet packages. As it happens, I had created a new <a href="http://www.myget.org/">MyGet</a> feed to enable <i>NuGet Package Restore</i> so I didn't have to include the SPA packages every time I released new code on my blog.</p><p>
+I realize that this means you are not <b>really</b> using the MVC4 RC but at least you can continue building SPA after installing it until Microsoft releases a new and supported version.</p>
+<h3>
+
+Starting a new SPA using VS 2010 with ASP.NET MVC 4 RC</h3>
+Follow these steps to get started:<br />
+<div>
+<ul>
+<li>Close Visual Studio 2010 if running.</li>
+<li>Uninstall Microsoft ASP.NET MVC4 <b>beta</b> if installed</li>
+<li><a href="http://go.microsoft.com/fwlink/?LinkId=243392">Download and Install Microsoft ASP.NET MVC4 RC</a></li>
+<li>Open Visual Studio 2010.</li>
+<li>Menu --&gt; Tools --&gt; Library Package Manager --&gt; Package Manager Settings --&gt; Package Sources</li>
+<li>Add a new package source and point it to&nbsp;<a href="http://www.myget.org/F/aspnetspa4beta/">http://www.myget.org/F/aspnetspa4beta/</a></li>
+</ul>
+<div class="separator" style="clear: both; text-align: center;">
+</div>
+<div>
+<div class="separator" style="clear: both; text-align: center;">
+<a href="http://2.bp.blogspot.com/-U3Qu9pwrW8w/T_Plese64oI/AAAAAAAAAFk/zY2PM0gqw_s/s1600/PMSettingsSource.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img alt="ASP.NET SPA MVC4 Beta feed" border="0" height="378" src="http://2.bp.blogspot.com/-U3Qu9pwrW8w/T_Plese64oI/AAAAAAAAAFk/zY2PM0gqw_s/s640/PMSettingsSource.png" title="ASP.NET SPA MVC4 Beta feed" width="640" /></a></div>
+<br /><p>
+Create a new MVC project and install the SPA NuGet packages from the PM Console:</p>
+<ul>
+<li>Menu --&gt; File --&gt; New --&gt; Project --&gt; ASP.NET MVC4 Web Application --&gt; Internet Application</li>
+<li>Find the packages.config file and remove the line that includes the "EntityFramework". This version 5.0.0-rc RC is incompatible with the version 4.3.1 that we need. The line looks like this:
+</li>
+</ul>
+<pre class="brush:xml;">
+&lt;package id="EntityFramework" version="5.0.0-rc" targetFramework="net40"/&gt;</pre>
+<ul>
+<li>Go to your project references and remove the reference to EntityFramework here as well. Below screenshot shows both action:
+<div class="separator" style="clear: both; text-align: center;">
+<a href="http://2.bp.blogspot.com/-a6YkemyGGXw/T_PrfhOeezI/AAAAAAAAAF0/VhjzLivytsE/s1600/SPACleanEF.png" imageanchor="1" style="margin-left:1em; margin-right:1em"><img border="0" height="206" width="400" src="http://2.bp.blogspot.com/-a6YkemyGGXw/T_PrfhOeezI/AAAAAAAAAF0/VhjzLivytsE/s400/SPACleanEF.png" /></a></div>
+</li>
+<li>Menu --&gt; Tools --&gt; Library Package Manager --&gt; Package Manager Console</li>
+</ul><p>
+<b>Make sure that 'Package source:' points to my MyGet feed otherwise you will download the packages from the official not-supported NuGet source</b></p>
+<pre class="brush:text;">Install-Package SinglePageApplication.CSharp
+Install-Package EntityFramework
+</pre>
+</div><p>
+After closing and re-opening the solution you're now ready start developing a new SPA</p></div>
+<h3>
+
+Migrating DeliveryTracker to MVC4 RC</h3><p>
+I took <a href="http://sdrv.ms/L01N3W">the source code of DeliveryTracker4 from my SkyDrive</a> and used this as a starting point for a new project that I also conveniently had called 'DeliveryTracker' to minimize namespace problems</p>
+<ul>
+<li>This is the list of files and folders I copied and included into the new 'DeliveryTracker' project. 
+<pre class="brush:text">
+.\DeliveryTracker\Content\Site.mobile.css
+
+.\DeliveryTracker\Controllers\DataServiceController.cs
+.\DeliveryTracker\Controllers\ViewSwitcherController.cs
+
+.\DeliveryTracker\Models\AppDbContext.cs
+.\DeliveryTracker\Models\DomainModel.cs
+
+.\DeliveryTracker\Scripts\App
+
+.\DeliveryTracker\Views\Home
+.\DeliveryTracker\Views\Shared\_Layout.cshtml
+.\DeliveryTracker\Views\Shared\_Layout.mobile.cshtml
+.\DeliveryTracker\Views\Shared\_SpaScripts.cshtml
+.\DeliveryTracker\Views\Shared\_ViewSwitcher.cshtml
+</pre>
+</li>
+<li>I changed the connectionstring in both the connectionStrings and entityFramework sections of the <i>web.config</i> file
+<pre class="brush:xml">
+&lt;connectionStrings&gt;
+  &lt;add name=&quot;DefaultConnection&quot; providerName=&quot;System.Data.SqlClient&quot; connectionString=&quot;Data Source=.;Initial Catalog=DeliveryTracker;Integrated Security=SSPI&quot; /&gt;
+&lt;/connectionStrings&gt;
+
+&lt;entityFramework&gt;
+  &lt;defaultConnectionFactory type=&quot;System.Data.Entity.Infrastructure.SqlConnectionFactory, EntityFramework&quot;&gt;
+    &lt;parameters&gt;
+      &lt;parameter value=&quot;Data Source=.; Integrated Security=True; MultipleActiveResultSets=True&quot; /&gt;
+    &lt;/parameters&gt;
+  &lt;/defaultConnectionFactory&gt;
+&lt;/entityFramework&gt;
+</pre>
+</li>
+
+</ul>
+<p>
+There were some additional steps to take before I could get my DeliveryTracker sample to function correctly.
+</p>
+<ul>
+<li>Update the <i>global.asax.cs</i> file to add my database initializer to the Application_Start function
+<pre class="brush:csharp">
+#if DEBUG
+System.Data.Entity.Database.SetInitializer
+  (new DeliveryTracker.Models.AppDbContextSeedInitializer());
+#endif
+</pre>
+</li>
+<li>Update the <i>site.css</i> file to include the two classes that were added to highlighted changes on screen
+<pre class="brush:js">
+.delivered
+{
+    text-decoration: line-through;
+    color: #008000;
+}
+
+.updated
+{
+    background-color: #FFFF00;
+}
+</pre>
+</li>
+<li>Update the <i>RouteConfig.cs</i> file to make the DataService controller reachable to accept POST'ed updates.
+<pre class="brush:csharp">
+routes.MapHttpRoute(
+  "DataService", // Route name
+  "api/DataService/{action}", // URL with parameters
+  new { controller = "DataService" } // Parameter defaults
+);
+</pre>
+</li>
+</ul>
+<br />
+<h3>Download the source code</h3>
+You can <a href="http://sdrv.ms/N6PCwv">download the source code</a> from my SkyDrive (Visual Studio 2010 project)

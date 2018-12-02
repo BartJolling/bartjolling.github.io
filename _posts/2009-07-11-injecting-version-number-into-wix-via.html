@@ -1,0 +1,66 @@
+---
+layout: post
+title: Injecting a version number into WiX via TeamBuild
+date: '2009-07-11T17:58:00.033+02:00'
+author: Bart Jolling
+tags:
+- WiX
+- TeamBuild
+modified_time: '2012-02-23T09:46:12.486+01:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-7809145166193203342
+blogger_orig_url: https://bartjolling.blogspot.com/2009/07/injecting-version-number-into-wix-via.html
+---
+
+I have found several ways of injecting a version number into Wix via TeamBuild, but most of them require way too much work. After a few days of experimenting I ended up with this solution.
+
+My TFSBuild.proj file contains the Major and Minor versions and a target "GenerateBuildNumber" to generate build and revision numbers. I use these to create a 'Versionnumber' property and add that to the &lt;custompropertiesforbuild&gt; property.
+
+<pre class="brush: xml;">
+&lt;propertygroup&gt;
+  &lt;assemblymajorversion&gt;2&lt;/assemblymajorversion&gt;
+  &lt;assemblyminorversion&gt;7&lt;/assemblyminorversion&gt;
+  &lt;custompropertiesforbuild&gt;
+    SignAssembly=true;DelaySign=false;AssemblyOriginatorKeyFile=$(PrivateKeyLocation)
+  &lt;/custompropertiesforbuild&gt;
+&lt;/propertygroup&gt;
+
+&lt;target name="BuildNumberOverrideTarget" dependsontargets="GenerateBuildNumber"&gt;
+  &lt;createproperty value="$(AssemblyMajorVersion).$(AssemblyMinorVersion).$(GeneratedBuildNumber).$(GeneratedRevisionNumber)"&gt;
+    &lt;output taskparameter="Value" propertyname="Versionnumber" /&gt;
+  &lt;/createproperty&gt;
+
+  &lt;!-- Add the dynamically generated Versionnumber to the custom build properties for use in the WIX project --&gt;
+  &lt;createproperty value="$(CustomPropertiesForBuild);Versionnumber=$(Versionnumber)"&gt;
+    &lt;output taskparameter="Value" propertyname="CustomPropertiesForBuild" /&gt;
+  &lt;/createproperty&gt;
+&lt;/target&gt;
+</pre>
+For setting the version number in a WiX project, you need to get the value in the Product.wxs file. My predecessor had defined PRODUCTVERSION to contain a placeholder value "_versionnumber_".
+Note: The official way would have been to use the &lt;defineconstants&gt; in the WiX project file but in my case, other builds were already depending on the placeholder so I didn't want to change this.
+<pre class="brush: xml;">
+&lt;?define PRODUCTVERSION="_versionnumber_"?&gt;
+</pre>
+In my WiX project file I have overriden the "BeforeBuild" target to replace the "_versionnumber_" placeholder with the actual value of $(Versionnumber). I'm using the 'File.Replace' task from the <a href="http://www.codeplex.com/sdctasks/">SDC Tasks library</a>.
+<pre class="brush: xml;">
+&lt;Target name="BeforeBuild"&gt;
+     &lt;microsoft.sdc.tasks.file.replace
+       Path="Product.wxs"
+       OldValue="%22_versionnumber_%22"
+       NewValue="%22$(Versionnumber)%22"
+       Force="true"
+       IgnoreCase="true"&gt;
+   &lt;/Target&gt;
+</pre>
+As a final step, I have overriden the "AfterBuild" target of the WiX project to rename the output msi in order to contain the versionnumber in the filename as well.
+<pre class="brush: xml;">
+&lt;Target name="AfterBuild"&gt;  
+ &lt;Createproperty value="$(TargetDir)%(CultureGroup.OutputFolder)"&gt;  
+   &lt;Output taskparameter="Value" propertyname="TargetDir"&gt;  
+ &lt;/CreateProperty&gt;  
+ 
+ &lt;Copy sourcefiles="$(TargetDir)$(TargetName)$(TargetExt)"  
+       destinationfiles="$(TargetDir)$(TargetName).$(Versionnumber)$(TargetExt)"&gt;  
+   
+ &lt;Delete files="$(TargetDir)$(TargetName)$(TargetExt)"&gt;  
+&lt;/Target&gt;
+</pre>

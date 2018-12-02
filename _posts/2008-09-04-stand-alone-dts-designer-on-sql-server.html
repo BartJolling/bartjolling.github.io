@@ -1,0 +1,143 @@
+---
+layout: post
+title: Stand-Alone DTS Designer on SQL Server 2005
+date: '2008-09-04T00:44:00.007+02:00'
+author: Bart Jolling
+tags:
+- DTS
+- Designer
+- SQL Server
+modified_time: '2012-02-23T10:27:24.574+01:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-2623204778067765039
+blogger_orig_url: https://bartjolling.blogspot.com/2008/09/stand-alone-dts-designer-on-sql-server.html
+---
+
+<p><em>This article describes how to open the DTS Designer for SQL Server 2005 programmatically. It eliminates the need to open the SQL Server Management Studio if you just need to edit a DTS that was saved as a structured storage file. I’m building a command line utility in C# that takes the full path to a dts package as a parameter and opens it in the designer. You can find its <a href="http://bart.jolling.googlepages.com/dtsdesigner80.vb">VB.NET code here</a>.</em></p><p>In my previous post, I already created a similar utility in VB.NET that opened the DTS Designer on PCs with SQL Server Enterprise Manager installed, which is the client application for SQL Server 2000. The source code is exactly the same. The only differences are that you'll need to install the <a href="http://download.microsoft.com/download/f/7/4/f74cbdb1-87e2-4794-9186-e3ad6bd54b41/SQLServer2005_DTS.msi" target="_blank">DTS Designer Components</a> from the <a href="http://www.microsoft.com/downloads/details.aspx?familyid=df0ba5aa-b4bd-4705-aa0a-b477ba72a9cb" target="_blank">Feature Pack for Microsoft SQL Server 2005</a> and that your project will reference the Microsoft.SQLServer.Dts80.dll assembly from the GAC</p><p>Visual Studio 2005 doesn't allow you to reference this assembly directly from the GAC. If you would browse to the GAC's folder (by default in the <span style="font-family:courier new;">%windir%\assembly</span> folder), the Assembly Cache Viewer (SHFusion.dll) shell extension will be actived which doesn't have an option to copy assemblies. You could <a href="http://www.codeproject.com/KB/dotnet/demystifygac.aspx" target="_blank">disable this shell extension</a> but it is just as easy to copy the assembly to a diffent folder using the command prompt:</p><ol><li>Click Start </li><li>Click Run... </li><li>Type 'cmd.exe' and press &lt;enter&gt;. The command prompt appears </li><li>Type the following command: </li></ol>
+<pre>copy %windir%\assembly\GAC_MSIL\Microsoft.SqlServer.Dts80\9.0.242.0__89845dcd8080cc91\Microsoft.SqlServer.Dts80.dll c:\data\</pre>
+<p>This will put a copy of the Microsoft.SqlServer.Dts80.dll to c:\data\ from where you can reference it in Visual Studio 2005. As soon as the project is finished and compiles you don't need this file anymore as your executable will use the one in the GAC.</p><p>In order to get started, open Visual Studio and create a new Windows application in C#. Put a reference to the Microsoft.SqlServer.Dts80.dll that you have copied to c:\data\</p><p>Create a ShowPkgDesigner function that takes the full pathname of an existing DTS package:</p>
+<pre class="brush:c-sharp;">
+private static void ShowPkgDesigner(string sPackagePathName)
+{
+  DTS.CDTSLegacyDesigner designer = null;
+  String packageName = String.Empty;
+  String packageID = String.Empty;
+  String packageVersionID = String.Empty;
+
+  //* Remove quotes from packagePath
+  sPackagePathName = sPackagePathName.Replace("\"", "");
+
+  if (sPackagePathName == String.Empty ||
+      ShowPkgBrowser(ref packageName, ref packageID,
+                     ref packageVersionID, sPackagePathName))
+{
+  try
+  {
+    designer = new DTS.CDTSLegacyDesigner();
+
+    designer.Initialize();
+    designer.Location = 2;
+    designer.PackageID = packageID;
+    designer.PackageName = packageName;
+    designer.ServerName = sPackagePathName;
+    designer.VersionID = packageVersionID;
+
+    //* Launch designer
+    designer.ShowDesigner();
+  }
+  finally
+  {
+    if (designer != null)
+    {
+      designer.Dispose();
+      designer = null;
+    }
+  }
+}
+}
+</pre>
+<p>Multiple DTS packages and versions can be safed in one structured storage file. The ShowPckBrowser function allows a user to select a specific version of a DTS package:</p><pre class="brush:c-sharp;">
+private static bool ShowPkgBrowser(ref String sPackageName,
+                                  ref String sPackageID,
+                                  ref String sPackageVersionID,
+                                  String sPackagePathName)
+{
+ DTS.Package package = null;
+ DTS.SavedPackageInfos packageInfoColl = null;
+ DTS.SavedPackageInfo packageInfo = null;
+
+ int selectedPackage = 0;
+
+ package = new DTS.Package();
+ packageInfoColl = package.GetSavedPackageInfos(sPackagePathName);
+
+ if (packageInfoColl.Count == 1)
+   selectedPackage = 1;
+ else
+ {
+   PackageBrowser pckBrowser = new PackageBrowser();
+  
+   for (int i = 1; i &lt;= packageInfoColl.Count; i++)
+   {
+     packageInfo = packageInfoColl.Item(i);
+     pckBrowser.AddPackageVersion(
+     packageInfo.VersionSaveDate.ToString(),
+     packageInfo.PackageName);
+   }
+  
+   if (pckBrowser.ShowDialog() == DialogResult.OK)
+     selectedPackage = pckBrowser.SelectedPackage;
+ }
+  
+ if (selectedPackage &gt; 0)
+ {
+   packageInfo = packageInfoColl.Item(selectedPackage);
+   sPackageName = packageInfo.PackageName;
+   sPackageID = packageInfo.PackageID;
+   sPackageVersionID = packageInfo.VersionID;
+  
+   return true;
+ }
+ else
+ {
+   return false;
+ }
+}</pre>
+<p>The code above uses a custom form that only contains a listbox. In the for loop, all versions and package names are added to that listbox. As soon as a user double-clicks on the desired version, the 'PackageBrowser.SelectedPackage' contains the index of that version. This is then used to retrieve the package name, id and versionId. I'll leave it up to the reader to implement the PackageBrowser component.</p><p>All that's left to do is to call the ShowPkgDesigner function from the main function. I want my executable to take the full path to the DTS package so that I can link it to "*.dts" files in Windows Explorers' "Open With..." functionality:</p>
+<pre class="brush:c-sharp;">
+static int Main(string[] args)
+{
+  try
+  {
+    String packagePath = String.Empty;
+    
+    // Full path to the DTS package is the first command line option
+    if (args.Length &gt; 0)
+    {
+      if ((new System.IO.FileInfo(args[0])).Exists)
+        packagePath = args[0];
+      else
+      {
+        OpenFileDialog openFiledlg = new OpenFileDialog();
+        
+        openFiledlg.CheckFileExists = true;
+        openFiledlg.Filter =
+        "DTS Packages(*.dts)*.dtsAll Files(*.*)*.*";
+        
+        if (openFiledlg.ShowDialog() == DialogResult.OK)
+        packagePath = openFiledlg.FileName;
+      }
+    }
+    
+    ShowPkgDesigner(packagePath);
+    
+    return 0;
+  }
+  
+  catch (Exception ex)
+  {
+    MessageBox.Show(ex.Message, "DTSDesigner90 Error",
+    MessageBoxButtons.OK, MessageBoxIcon.Error);
+    return -1;
+  }
+}</pre>
+<p>If no path is provided to the command line, an empty designer sheet is opened. If an invalid pathname is passed, the user will be prompted to browse to an existing file.</p><p>Having this command line utility has really improved my productivity when I was constantly editing and comparing DTS packages that were scattered all over the companies network. Being able to open a package by just double-clicking it is just that little bit more efficient than opening them through the SQL Server Management Studio.</p>

@@ -1,0 +1,112 @@
+---
+layout: post
+title: Deploying ASP.NET MVC4 Single Page Applications on Windows Azure Websites
+date: '2012-07-10T14:09:00.000+02:00'
+author: Bart Jolling
+tags:
+- ASP.NET MVC 4
+- Windows Azure
+- Single Page Application
+modified_time: '2012-07-10T14:22:14.903+02:00'
+thumbnail: http://4.bp.blogspot.com/-7cnrYwbHXqA/T_wO5BlIhyI/AAAAAAAAAGE/z5VD7CdA7vU/s72-c/AzureSignupPreview.png
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-2189353917034827082
+blogger_orig_url: https://bartjolling.blogspot.com/2012/07/deploying-singlepageapplications-on.html
+---
+
+An anonymous poster on <a href="http://bartjolling.blogspot.nl/2012/06/building-single-page-apps-with-aspnet.html" target="_blank">my fifth post about Single Page Applications (SPA)</a> asked if it was possible to deploy SPAs on Windows Azure.&nbsp;As it turns out the Windows Azure Web Site offering makes this very easy to do if you build your SPA as outlined in that post.<br />
+<br />
+<h3>
+
+
+
+
+
+
+
+
+Windows Azure Websites</h3>
+<div>
+<a href="https://www.windowsazure.com/en-us/home/scenarios/web-sites/" target="_blank">Windows Azure Web Sites</a> have been<a href="http://blogs.msdn.com/b/windowsazure/archive/2012/06/06/announcing-new-windows-azure-services-to-deliver-hybrid-cloud.aspx" target="_blank"> recently&nbsp;announced</a> by Microsoft and are at the time of writing released as a preview feature on Windows Azure.&nbsp;</div>
+<div>
+<br /></div>
+<div>
+If you don't have a Windows Azure account already you can <a href="https://www.windowsazure.com/en-us/pricing/free-trial/" target="_blank">sign up for the free 90-day trial</a>.&nbsp;Since the feature is still in preview, you can&nbsp;sign up for free as well on your&nbsp;<a href="https://account.windowsazure.com/PreviewFeatures" target="_blank">Windows Azure Account Page</a>. Activation can take a full day.<br />
+<br /></div>
+<div>
+<br /></div>
+<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center;"><tbody>
+<tr><td style="text-align: center;"><a href="http://4.bp.blogspot.com/-7cnrYwbHXqA/T_wO5BlIhyI/AAAAAAAAAGE/z5VD7CdA7vU/s1600/AzureSignupPreview.png" imageanchor="1" style="margin-left: auto; margin-right: auto;"><img border="0" height="248" src="http://4.bp.blogspot.com/-7cnrYwbHXqA/T_wO5BlIhyI/AAAAAAAAAGE/z5VD7CdA7vU/s640/AzureSignupPreview.png" width="640" /></a></td></tr>
+<tr><td class="tr-caption" style="text-align: center;">Windows Azure Account - Preview Features</td></tr>
+</tbody></table>
+<div>
+<br />
+<br />
+Once you have received the e-mail message that your account has been activated, you can navigate to the brand new <a href="https://manage.windowsazure.com/" target="_blank">Windows Azure Portal</a> and create a new website. Since I will be deploying my '<a href="http://sdrv.ms/N6PCwv" target="_blank">DeliveryTracker</a>' Single Page Application, I will also need to create a database.<br />
+<br />
+<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center;"><tbody>
+<tr><td style="text-align: center;"><a href="http://4.bp.blogspot.com/-nTQH7sAFfcw/T_wQzxpw1-I/AAAAAAAAAGM/s6sLKYWwNr8/s1600/AzureCreateSiteDb.png" imageanchor="1" style="margin-left: auto; margin-right: auto;"><img border="0" height="278" src="http://4.bp.blogspot.com/-nTQH7sAFfcw/T_wQzxpw1-I/AAAAAAAAAGM/s6sLKYWwNr8/s640/AzureCreateSiteDb.png" width="640" /></a></td></tr>
+<tr><td class="tr-caption" style="text-align: center;">New - Web Site - Create With Database</td></tr>
+</tbody></table>
+<br />
+Follow the wizard that appears. If you don't have a SQL Database in Azure already allow the wizard to create one for you.<br />
+<br />
+<h3>
+
+
+
+
+
+
+
+SQL Databases in Windows Azure</h3>
+<div>
+SQL databases are part of <a href="https://www.windowsazure.com/en-us/home/features/data-management/" target="_blank">the Data Management offering of Windows Azure</a>. You can either <a href="https://manage.windowsazure.com/#Workspace/SqlAzureExtension/databases" target="_blank">manage these databases from the portal</a> or via the SQL Server Management Studio (SSMS). Because I already had an existing SQL database in Azure, I chose to migrate my data from my local SQL Server using SSMS.</div>
+<div>
+<br /></div>
+<table cellpadding="0" cellspacing="0" class="tr-caption-container" style="float: right; margin-left: 1em; text-align: right;"><tbody>
+<tr><td style="text-align: center;"><a href="http://3.bp.blogspot.com/-uQnMX4qu-f4/T_wXWAot0gI/AAAAAAAAAGY/VqBNdIs6ce0/s1600/AzureDeployDb.png" imageanchor="1" style="clear: right; margin-bottom: 1em; margin-left: auto; margin-right: auto;"><img border="0" height="221" src="http://3.bp.blogspot.com/-uQnMX4qu-f4/T_wXWAot0gI/AAAAAAAAAGY/VqBNdIs6ce0/s400/AzureDeployDb.png" width="400" /></a></td></tr>
+<tr><td class="tr-caption" style="text-align: center;">Deploy Database to SQL Azure</td></tr>
+</tbody></table>
+<div>
+If your firewall allows it (port 1433 needs to be open) you can deploy to SQL Azure directly. If not, you can choose to 'Export the Data-tier application'. This generates a .bacpac file that you can import in the management window of your SQL Azure.<br />
+<br />
+In any case you need to make sure that the firewall of the SQL Azure server accepts the ip address of your local machine to connect. This you can also manage from the SQL Azure portal</div>
+<br /></div>
+<div>
+<h3>
+
+
+
+
+
+</h3>
+<h3>
+
+
+
+
+
+
+
+Deploying DeliveryTracker</h3>
+</div>
+<div>
+Now that everything is in place, the actual deployment is quite simple:</div>
+<div>
+<ul>
+<li><a href="http://sdrv.ms/N6PCwv" target="_blank">Download the DeliveryTracker application</a>, unzip it and open it with Visual Studio 2010.</li>
+<li>Open the web.config file and rename the 'DefaultConnection' to 'AppDbContext' which is the name of the actual Entity Framework Code First DbContext that is used.</li>
+<li>Right-click the DeliveryTracker project and choose 'Publish...'. A wizard opens.</li>
+<li>In the first screen ('Profile') of the wizard you can import a publishing profile. This publishing profile is available for download in the management console for your new website in the Azure portal</li>
+<li>In the third screen ('Settings') of the wizard, make sure that the connection string is called 'AppDbContext' and is pointing to the correct database that was created above in SQL Azure.</li>
+<li>Click Publish</li>
+</ul>
+<div>
+Visual Studio will now start deploying the website to Windows Azure. It doesn't take too long to finish. You can visit <a href="http://deliverytracker.azurewebsites.net/" target="_blank">the DeliveryTracker site that I deployed while writing this post</a>.&nbsp;</div>
+<div>
+<br /></div>
+<div>
+I probably should add a 'Reset Test Data' button somewhere :)</div>
+</div>
+<div>
+<br /></div>

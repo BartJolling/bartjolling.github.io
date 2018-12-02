@@ -1,0 +1,177 @@
+---
+layout: post
+title: Making MFC controls available for WinForms through MFC subclassing
+date: '2008-11-24T15:10:00.019+01:00'
+author: Bart Jolling
+tags:
+- MFC
+- Controls
+- C++/CLI
+modified_time: '2012-02-23T09:54:14.611+01:00'
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-7566756150312914980
+blogger_orig_url: https://bartjolling.blogspot.com/2008/11/developing-windows-forms-control-using.html
+---
+
+<p>When trying to figure out how to use some of my MFC controls in a WinForms application, I came across this <a href="http://www.codeproject.com/KB/miscctrl/mfcandwindowsforms.aspx">article</a> by <a href="http://www.codeproject.com/script/Articles/MemberArticles.aspx?amid=15383">Rama Krishna Vavilala</a>. As his article was targetting the .NET 1.1 framework, I decided to rework it for .NET 2.0. The main difference is the switch from using Managed Extension for C++ to using C++/CLI.</p><h3>Static Win32 library for C3DMeterCtrl</h3>
+<p>As is the case in Rama's article, I will also use Mark C. Malburg's <a href="http://www.codeproject.com/KB/miscctrl/3dmeter.aspx">Analog Meter Control</a>. So first, create a Win32 static library project with support for MFC and precompiled headers called "ControlS" (S stands for static). This will contain the MFC code for the existing 3DMeterCtrl control. Place the files 3DMeterCtrl.cpp, 3DMeterCtrl.h and MemDC.h in the "ControlS" project. Modify the 3DMeterCtrl.cpp file to remove the line <span style="color: rgb(51, 51, 255);">#include</span> "MeterTestForm.h".
+</p><p>The .NET designer and runtime will call functions that try to talk to your MFC control even before its window handle is created. In case of the C3DMeterCtrl, I needed to add this function call at the beginning of the "UpdateNeedle" and "ReconstructControl" functions:</p>
+<pre class="brush: c++; ">
+if (!GetSafeHwnd())
+  return;
+</pre>
+<h3>MFC library for the managed 'ThreeDMeter' control</h3>
+<p>To bridge the gap between MFC and .NET I'm going to use C++/CLI. This allows me to create a managed wrapper object around the MFC control.
+</p><p>Add an "MFC DLL" project, called "control". Go to the project properties and enable the common language runtime support (/clr). Using the "Add Class" wizard add a new control and call it "ThreeDMeter". Make these changes to the ThreeDMeter.h file:</p><ul><li><span style="color: rgb(51, 51, 255);">#include</span> the header file of the MFC control "..\ControlS\3DMeterCtrl.h"</li><li>Change the inheritance of the control to <span style="color: rgb(51, 51, 255);">public</span> System::Windows::Forms::Control</li><li>Add a private instance of C3DMeterCtrl to the class. Create it in the constructor and delete it in the finalizer. In "OnHandleCreated", call its "SubclassWindow" method using the .NET controls window handle.
+</li></ul>The file "ThreeDMeter.h" should now look like this:
+<pre class="brush: c++; ">
+#pragma once
+
+using namespace System;
+using namespace System::ComponentModel;
+using namespace System::Collections;
+using namespace System::Windows::Forms;
+using namespace System::Data;
+using namespace System::Drawing;
+
+#include "..\ControlS\3DMeterCtrl.h"
+
+namespace Control {
+
+public ref class ThreeDMeter : public System::Windows::Forms::Control
+{
+public:
+ThreeDMeter(void)
+{
+  InitializeComponent();
+  m_pCtrl = new C3DMeterCtrl();
+}
+
+protected:
+//Finalizer
+!ThreeDMeter()
+{
+  if (m_pCtrl != NULL)
+  {
+    delete m_pCtrl;
+    m_pCtrl = NULL;
+  }
+}
+
+//Destructor
+~ThreeDMeter()
+{
+  if (components)
+  {
+    delete components;
+  }
+
+  //call finalizer to release unmanaged resources.
+  this->!ThreeDMeter();
+}
+
+virtual void OnHandleCreated(EventArgs^ e) override
+{
+  System::Diagnostics::Debug::Assert(m_pCtrl->GetSafeHwnd() == NULL);
+
+  m_pCtrl->SubclassWindow((HWND)Handle.ToPointer());
+
+  Control::OnHandleCreated(e);
+}
+
+private:
+System::ComponentModel::Container ^components;
+C3DMeterCtrl* m_pCtrl;
+};
+</pre>
+In order to expose the properties of the MFC control in .NET, you need to implement them yourself. Add following code in the <span style="color: rgb(51, 51, 255);">public</span> section of the ThreeDMeter wrapper class.
+<pre class="brush: c++; ">
+event EventHandler^ OnValueChanged;
+
+[property: System::ComponentModel::CategoryAttribute("Meter")]
+property Color NeedleColor
+{
+  Color get()
+  {
+    if( m_pCtrl == NULL )
+      throw gcnew ObjectDisposedException(ThreeDMeter::GetType()->ToString());
+  
+    return System::Drawing::ColorTranslator::FromWin32(m_pCtrl->m_colorNeedle);
+  }
+  
+  void set(Color clr)
+  {
+    if (!m_pCtrl)
+      throw gcnew ObjectDisposedException(ThreeDMeter::GetType()->ToString());
+  
+    AFX_MANAGE_STATE(AfxGetStaticModuleState());
+  
+    m_pCtrl->SetNeedleColor(ColorTranslator::ToWin32(clr));
+  }
+}
+
+[property: System::ComponentModel::CategoryAttribute("Meter")]
+property String^ Units
+{
+  void set(String^ units)
+  {
+    if (!m_pCtrl)
+      throw gcnew ObjectDisposedException(ThreeDMeter::GetType()->ToString());
+  
+    AFX_MANAGE_STATE(AfxGetStaticModuleState());
+  
+    CString strUnits(units);
+  
+    m_pCtrl->SetUnits(strUnits);
+  }
+  
+  String^ get()
+  {
+    if (!m_pCtrl)
+      throw gcnew ObjectDisposedException(ThreeDMeter::GetType()->ToString());
+  
+    LPCTSTR szUnits = (m_pCtrl->m_strUnits);
+  
+    return gcnew String(szUnits);
+  }
+}
+
+[property: System::ComponentModel::CategoryAttribute("Meter")]
+property double Value
+{
+  double get()
+  {
+    if (!m_pCtrl)
+      throw gcnew ObjectDisposedException(ThreeDMeter::GetType()->ToString());
+  
+    return m_pCtrl->m_dCurrentValue;
+  }
+  
+  void set(double d)
+  {
+    if (!m_pCtrl)
+      throw gcnew ObjectDisposedException(ThreeDMeter::GetType()->ToString());
+  
+    AFX_MANAGE_STATE(AfxGetStaticModuleState());
+  
+    m_pCtrl->UpdateNeedle(d);
+  
+    OnValueChanged(this, EventArgs::Empty);
+  }
+}
+</pre>
+<h3>.NET Test application</h3>
+In order to test the managed ThreeDMeter control, add a .NET "Windows application" project to the solution in your favorite language. Put the Three3Meter control on the form and add a timer control
+<pre class="brush: vb; ">
+Public Class Form1
+  Private Sub Timer1_Tick(ByVal sender As System.Object, 
+                          ByVal e As system.EventArgs) Handles Timer1.Tick
+
+    If Me.ThreeDMeter1.Value <= 4 Then
+      Me.ThreeDMeter1.Value += (Me.Timer1.Interval / 1000)
+    Else
+      Me.ThreeDMeter1.Value = -5
+    End If
+  End Sub
+End Class
+</pre>
+<p>This will make the meter move from left to right.</P>

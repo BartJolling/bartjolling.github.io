@@ -1,0 +1,284 @@
+---
+layout: post
+title: Building Single Page Apps with ASP.NET MVC4 - Part 3 - Basic Mobile Application
+date: '2012-03-15T11:12:00.000+01:00'
+author: Bart Jolling
+tags:
+- ASP.NET MVC 4
+- Knockout
+- Single Page Application
+- Upshot
+modified_time: '2012-06-29T12:37:43.600+02:00'
+thumbnail: http://4.bp.blogspot.com/-PWHGZWIdx-U/T2Hltcfr7GI/AAAAAAAAAE8/LlkLIYDgdMQ/s72-c/DeliveryTrackerMobile.png
+blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-4581713984330514854
+blogger_orig_url: https://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet_15.html
+---
+
+<p>This blog is part of a series about building Single Page Applications using ASP.NET MVC 4 beta. When writing this post I assumed you have read the first and second posts. The code snippets are just the incremental changes that are needed since the second post</p>
+<ol>
+<li><a href="http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 1 - Basic Desktop application</a></li>
+<li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 2 - Advanced Desktop Application</a></li>
+<li>Single Page Applications - Part 3 - Basic Mobile Application</li>
+<li><a href="http://bartjolling.blogspot.com/2012/04/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 4 - Sorting, Filtering and Manipulation data with upshot.js</a></li>
+<li><a href="http://bartjolling.blogspot.nl/2012/06/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 5 - With MVC4 RC</a></li>
+</ol>
+
+<h3>The mobile viewmodel</h3>
+
+<p>In this post I'm adding a mobile component to the DeliveryTracker application I have been describing in my previous posts. I want to have an overview page per delivery, an overview page per customer and a detail view for the currently selected delivery. In order to do that, I'll create a new MobileDeliveriesViewModel in the <em>DeliveriesViewModel.js </em>file. This new class inherits from the existing DeliveriesViewModel class to inherit the existing features but adds some of its own:</p>
+<ul>
+<li>self.currentDelivery is an observable (knockout.js) variable to keep track of the currently selected delivery which we need in order to navigate from the overview pages to the detail page</li>
+<li>self.nav keeps the navigation history (nav.js) for our single page. It gives the impression to the user of navigating between different pages as usual. But it enables back button and allows creation of bookmarks within the single page application. 
+  <ul>
+    <li>The name of the view will be stored in the view parameter. The default page will be the deliveries view.</li>
+    <li>A deliveryId paramater will be included in the querystring and intialized to null</li>
+    <li>On navigation we extract the deliveryId from the querystring and use it to filter the datasource</li>
+  </ul>
+</li>
+
+<li>self.show<em>something</em> functions to invoke the navigation functionality. The showDelivery function receives the delivery object that was clicked so it can extract the deliveryId from it and attach it to the querystring so the delivery view can read it.</li>
+
+</ul>
+<pre class="brush:js;highlight[13]">
+function MobileDeliveriesViewModel() {
+  //inherit from DeliveriesViewModel
+  var self = this;
+  DeliveriesViewModel.call(self);
+
+  // Data
+  self.currentDelivery = ko.observable();
+
+  self.nav = new NavHistory({
+      params: { view: &#39;deliveries&#39;, deliveryId: null },
+      onNavigate: function (navEntry) {
+          var requestedDeliveryId = navEntry.params.deliveryId;            
+          self.dataSource.findById(requestedDeliveryId, self.currentDelivery);
+      }
+  });
+
+  //Operations
+  self.showDeliveries = function () 
+       { self.nav.navigate({ view: &#39;deliveries&#39; }) };
+  self.showCustomers = function () 
+       { self.nav.navigate({ view: &#39;customers&#39; }) };
+
+  self.showDelivery = function (delivery) {
+      self.nav.navigate({ view: &#39;delivery&#39;, 
+                    deliveryId: delivery.DeliveryId() })
+  };
+
+  self.nav.initialize({ linkToUrl: true });
+}
+</pre>
+<p>Note that the onNavigate function uses the <em>findById</em> method on the upshot datasource that doesn't exist in the original beta release of ASP.NET MVC 4. Add the following javascript code to the <em>upshot.knockout.extensions.js</em> file. The highlighted line below is already present in the file so don't add it again.</p>
+<pre class="brush:js;highlight:[1]">
+(function (ko, upshot, undefined) {
+    upshot.RemoteDataSource.prototype.findById = function (id, updateTarget) {
+        function search() {
+            var self = this;
+            var foundEntity = 
+                $.grep(ko.utils.unwrapObservable(self.getEntities()), 
+                function (entity) {
+                   return self.getEntityId(entity) === updateTarget._id;
+                })[0];
+            updateTarget(foundEntity);
+        }
+
+        if (!(&#39;_id&#39; in updateTarget)) {
+            // TODO: What is the provision to &#39;unbind&#39; here?
+            this.bind(&quot;refreshSuccess&quot;, search);
+        }
+        updateTarget._id = id;
+        search.call(this);
+    };
+</pre>
+
+<p>Also note that in the parent DeliveriesViewModel class, bufferChanges is put back to false in order to have immediate upshot synchronization with the service back-end</p>
+<pre class="brush:js;highlight:[9]">
+function DeliveriesViewModel() {
+    // Private
+    var self = this;
+    var dataSourceOptions = {
+        providerParameters: { url: &quot;/api/DataService&quot;,
+            operationName: &quot;GetDeliveriesForToday&quot;
+        },
+        entityType: &quot;Delivery:#DeliveryTracker.Models&quot;,
+        bufferChanges: false,
+        mapping: Delivery
+    };
+
+    // Snip the rest of the code
+    // ...
+    // ...
+}
+</pre>
+
+<h3>The mobile layout</h3>
+<p>
+ASP.NET MVC can support mobile browsers by letting you create specific mobile pages using the ".mobile.cshtml" extension. In order to test these pages I installed this <a href="https://chrome.google.com/webstore/detail/djflhoibgkdhkhhcedjiklpkjnoahfmg">User-Agent Switcher for Chrome</a>.</p>
+
+<p> In the \Views\Shared folder, create two new files:</p>
+<ul>
+<li><em>_SpaScripts.cshtml:</em> partial view that groups the different javascript includes</li>
+<li><em>_Layout.mobile.cshtml</em>: layout page for mobile browsers</li>
+</ul>
+<p>The <em>_SpaScripts.cshtml:</em> is quite simply</p>
+<pre class="brush:html;">
+&lt;script src=&quot;~/Scripts/jquery-1.6.4.min.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/modernizr-2.0.6-development-only.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/knockout-2.0.0.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/arrayUtils.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/upshot.min.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/upshot.compat.knockout.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/upshot.knockout.extensions.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/native.history.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/Scripts/nav.js&quot;
+        type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+</pre>
+<p>The <em>_Layout.mobile.cshtml:</em> includes the _SpaScripts partial view and the navigation bar. The two list items in the navigation bar use data-binding to attach their functionality in a declarative way.</p>
+<ul>
+<li>Their click events are linked to their respective <em>show</em> functions in the <em>MobileDeliveriesViewModel</em></li>
+<li>Their CSS style is adapted so they appear as active when their view is showing. You can find the <em>Site.Mobile.css</em> file in the code download at the end of this post.</li>
+</ul>
+<pre class="brush:html;">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot; /&gt;
+    &lt;title&gt;@ViewBag.Title&lt;/title&gt;
+    &lt;link href=&quot;~/favicon.ico&quot; rel=&quot;shortcut icon&quot; type=&quot;image/x-icon&quot; /&gt;
+    &lt;link href=&quot;~/Content/Site.Mobile.css&quot; rel=&quot;Stylesheet&quot; type=&quot;text/css&quot; /&gt;       
+    &lt;script src=&quot;@System.Web.Optimization.BundleTable.Bundles.ResolveBundleUrl(&quot;~/Scripts/js&quot;)&quot;&gt;
+    &lt;/script&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot; /&gt;
+
+    @Html.Partial(&quot;_SpaScripts&quot;)
+
+    &lt;script src=&quot;~/Scripts/App/DeliveriesViewModel.js&quot;
+            type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;nav class=&quot;bar&quot;&gt;
+        &lt;ul&gt;
+          &lt;li data-bind=&quot;click: showDeliveries, 
+              css: { active: nav.params().view == &#39;deliveries&#39; }&quot;&gt;Deliveries&lt;/li&gt;
+          &lt;li data-bind=&quot;click: showCustomers, 
+              css: { active: nav.params().view == &#39;customers&#39; }&quot;&gt;Customers&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/nav&gt;
+
+    @RenderBody()
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h3>The mobile views</h3>
+
+<p>Now add a Index.mobile.cshtml to the \Views\Home folder. It's quite simple. When the DOM is ready a javascript function initializes the upshot library and initializes the knockout bindings to the MobileDeliveriesViewModel. The actual views are defined as partial views that are shown whenever their views are active.</p><p> Notice that the <em>_DeliveryDetails</em> view in Steven Sandersons example used the <em>with:</em> data-bind parameter. I couldn't get it to work so I encapsulated it within a parent div that checks the active view</p>
+<pre class="brush:html;">
+@{
+    ViewBag.Title = &quot;Deliveries&quot;;
+}
+
+&lt;script type=&quot;text/javascript&quot;&gt;
+    $(function () {
+        upshot.metadata(@(Html.Metadata
+                 &lt;DeliveryTracker.Controllers.DataServiceController&gt;()));
+        ko.applyBindings( new MobileDeliveriesViewModel( ));
+    });
+&lt;/script&gt;
+
+&lt;div data-bind=&quot;if: nav.params().view == &#39;deliveries&#39;&quot;&gt;
+    @Html.Partial(&quot;_DeliveriesList&quot;)
+&lt;/div&gt;
+
+&lt;div data-bind=&quot;if: nav.params().view == &#39;customers&#39;&quot;&gt;
+    @Html.Partial(&quot;_CustomersList&quot;)
+&lt;/div&gt;
+
+&lt;div data-bind=&quot;if: nav.params().view == &#39;delivery&#39;&quot;&gt;
+    &lt;div data-bind=&quot;with: currentDelivery&quot;&gt;
+        @Html.Partial(&quot;_DeliveryDetails&quot;)
+&lt;/div&gt;
+</pre>
+
+<p>The final items left to do are defining the partial views themselves. The only new functionality here is the <a href="http://knockoutjs.com/documentation/foreach-binding.html">$root pseudo-variable used by knockouts for-each data-binding</a> which is used to bind the <em>showDelivery</em> method of the <em>MobileDeliveriesViewModel</em> to each item in the list</p>
+<p>_CustomersList.cshtml</p>
+<pre class="brush:html;">
+&lt;div class=&quot;content&quot;&gt;
+    &lt;label&gt;&lt;input type=&quot;checkbox&quot; data-bind=&quot;checked: excludeDelivered&quot; /&gt;
+              Only show undelivered items&lt;/label&gt;
+
+    &lt;div data-bind=&quot;foreach: deliveriesForCustomer&quot;&gt;
+        &lt;h4 data-bind=&quot;text: key.Name&quot;&gt;&lt;/h4&gt;
+        &lt;ol class=&quot;deliveries&quot; data-bind=&quot;foreach: values&quot;&gt;
+            &lt;li data-bind=&quot;text: Description, 
+                           css: { updated: IsUpdated, delivered: IsDelivered }, 
+                           click: $root.showDelivery&quot;&gt;&lt;/li&gt;
+        &lt;/ol&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<p>_DeliveriesList.cshtml</p>
+<pre class="brush:html;">
+&lt;div class=&quot;content&quot;&gt;
+    &lt;label&gt;&lt;input data-bind=&quot;checked: excludeDelivered&quot; type=&quot;checkbox&quot; /&gt;
+              Only show undelivered items&lt;/label&gt;
+
+    &lt;ol class=&quot;deliveries&quot; data-bind=&quot;foreach: deliveries&quot;&gt;
+
+        &lt;li data-bind=&quot;css: { updated: IsUpdated, delivered: IsDelivered },
+                                        click: $root.showDelivery&quot;&gt;
+            &lt;span data-bind=&quot;text: Description&quot;&gt;&lt;/span&gt;
+            &lt;span class=&quot;details&quot; data-bind=&quot;text: Customer().Name&quot;&gt;&lt;/span&gt;
+        &lt;/li&gt;
+
+    &lt;/ol&gt;
+&lt;/div&gt;
+</pre>
+<p>_DeliveryDetails.cshtml</p>
+<pre class="brush:html;">
+&lt;div class=&quot;title bar&quot;&gt;
+    &lt;button data-bind=&quot;click: History.back&quot;&gt;&amp;lt; Back&lt;/button&gt;
+    &lt;h1 data-bind=&quot;text: Description&quot;&gt;&lt;/h1&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;content&quot;&gt;
+    &lt;p&gt;Delivery #&lt;strong data-bind=&quot;text: DeliveryId&quot;&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;div class=&quot;callout&quot; data-bind=&quot;with: Customer&quot;&gt;
+        &lt;h1&gt;Customer&lt;/h1&gt;
+
+        &lt;label&gt;Name&lt;/label&gt;
+        &lt;strong data-bind=&quot;text: Name&quot;&gt;&lt;/strong&gt;
+        
+        &lt;label&gt;Address&lt;/label&gt;
+        &lt;strong data-bind=&quot;text: Address&quot;&gt;&lt;/strong&gt;
+    &lt;/div&gt;
+    
+    &lt;label class=&quot;checkbox&quot; data-bind=&quot;css: { delivered: IsDelivered }&quot;&gt;
+        &lt;input type=&quot;checkbox&quot; data-bind=&quot;checked: IsDelivered&quot; /&gt; Delivered
+    &lt;/label&gt;
+&lt;/div&gt;
+</pre>
+<p>Following navigation map shows the mobile application in action</p>
+<ul>
+<li>The 'deliveries' screen with the list of deliveries. Clicking a delivery navigates to the 'delivery' screen</li>
+<li>The 'customers' screen with the list of deliveries grouped by customer. Clicking a delivery navigates to the 'delivery' screen. In the URL you can see the 'view=customer' parameter.</li>
+<li>The 'delivery' screen containing the delivery details per item. In the URL you can see the 'view' and the 'deliveryId' parameters. Clicking 'Back' navigates back to the previous page.</li>
+<li>All of these views exist on the same webpage but by changing the URL, the back button and bookmarking functions as you would expect</li>
+</ul>
+<div class="separator" style="clear: both; text-align: center;">
+<a href="http://4.bp.blogspot.com/-PWHGZWIdx-U/T2Hltcfr7GI/AAAAAAAAAE8/LlkLIYDgdMQ/s1600/DeliveryTrackerMobile.png" imageanchor="1">
+<img border="0" src="http://4.bp.blogspot.com/-PWHGZWIdx-U/T2Hltcfr7GI/AAAAAAAAAE8/LlkLIYDgdMQ/s400/DeliveryTrackerMobile.png" /></a><br/>
+</div>
+<div><h3>Download the source code</h3><p>You can <a href="https://skydrive.live.com/redir.aspx?cid=92fec8e2df222664&resid=92FEC8E2DF222664!454&parid=92FEC8E2DF222664!399&authkey=!AHLI46sv38Vz-kA">download the source code</a> (Visual Studio 2010 solution) from my Skydrive.</p></div>
