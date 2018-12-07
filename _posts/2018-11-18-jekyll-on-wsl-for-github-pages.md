@@ -7,8 +7,6 @@ categories: blog
 tags: [Jekyll, Github Pages, Windows Subsystem for Linux] 
 ---
 
-## Introduction
-
 Since some time I've been planning to move my blog away from [blogspot](https://bartjolling.blogspot.com/ "Bart's Software Cookbook on Blogspot.com") to [Github Pages](https://pages.github.com/ "Github Pages"). I could have done it the traditional way and uploaded html files, but Github Pages support blogging with [Jekyll](https://jekyllrb.com/ "Jekyll") using _beautifull_ markdown (sic) so that's what I wanted to try out.
 
 ## Context

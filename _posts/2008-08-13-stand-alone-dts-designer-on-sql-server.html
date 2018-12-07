@@ -12,18 +12,21 @@ blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-38522647952324276
 blogger_orig_url: https://bartjolling.blogspot.com/2008/08/stand-alone-dts-designer-on-sql-server.html
 ---
 
-<p><em>This article describes how to open the DTS Designer for SQL Server 2000 programmatically. It eliminates the need to open the SQL Server Enterprise Manager if you just need to edit a DTS that was saved as a structured storage file. In this article I'm building a command line utility in VB.NET that takes the full path to a dts package as a parameter and opens it in the designer. You can find its <a href="http://bart.jolling.googlepages.com/dtsdesigner80.vb" target="_blank">VB.NET code here</a>.</em></p>  <p>I recently started working on a project involving the creation and modification of DTS packages that were scattered around on many different systems and file shares. What really annoyed me was the fact that you are forced to go via the SQL Server Enterprise Manager and connect to a random SQL Server, even if you wanted to open a DTS package that was saved to the file system as a structured storage file.</p>  <p>After some searching on the internet for a DTS API, I came across the MSDN article on <a href="http://msdn.microsoft.com/en-us/library/aa176227%28SQL.80%29.aspx" target="_blank">Creating DTS Packages in Visual Basic</a>. No explanation however was given on how to open the designer programmatically although the library (dtspck.dll) included an object called <strong>CDTSLegacyDesigner</strong>, which clearly was the object I was after.</p>  <p>The following VB.NET code shows how to load the designer with a empty design surface. You will have to add a reference to the COM component dtspck.dll first, which is installed together with the SQL Server 2000 Client Tools (such as Enterprise Manager, Query Analyzer...)</p>
-<pre style='color:#d1d1d1;background:#000000;'>Try
-  designer <span style='color:#d2cd86; '>=</span> <span style='color:#e66170; font-weight:bold; '>New</span> DTS<span style='color:#00a800; '>.</span>CDTSLegacyDesigner
-  designer<span style='color:#00a800; '>.</span>Initialize<span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span>
-  designer<span style='color:#00a800; '>.</span>ShowDesigner<span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span>
+<p>This article describes how to open the DTS Designer for SQL Server 2000 programmatically. It eliminates the need to open the SQL Server Enterprise Manager if you just need to edit a DTS that was saved as a structured storage file. In this article I'm building a command line utility in VB.NET that takes the full path to a dts package as a parameter and opens it in the designer. You can find its <a href="http://bart.jolling.googlepages.com/dtsdesigner80.vb" target="_blank">VB.NET code here</a>.</p>
+
+<p>I recently started working on a project involving the creation and modification of DTS packages that were scattered around on many different systems and file shares. What really annoyed me was the fact that you are forced to go via the SQL Server Enterprise Manager and connect to a random SQL Server, even if you wanted to open a DTS package that was saved to the file system as a structured storage file.</p>  <p>After some searching on the internet for a DTS API, I came across the MSDN article on <a href="http://msdn.microsoft.com/en-us/library/aa176227%28SQL.80%29.aspx" target="_blank">Creating DTS Packages in Visual Basic</a>. No explanation however was given on how to open the designer programmatically although the library (dtspck.dll) included an object called <strong>CDTSLegacyDesigner</strong>, which clearly was the object I was after.</p>  <p>The following VB.NET code shows how to load the designer with a empty design surface. You will have to add a reference to the COM component dtspck.dll first, which is installed together with the SQL Server 2000 Client Tools (such as Enterprise Manager, Query Analyzer...)</p>
+<pre class="brush:vb;" >
+Try
+  designer = New DTS.CDTSLegacyDesigner
+  designer.Initialize()
+  designer.ShowDesigner()
 Finally
-  <span style='color:#e66170; font-weight:bold; '>If</span> <span style='color:#e66170; font-weight:bold; '>Not</span> designer Is <span style='color:#e66170; font-weight:bold; '>Nothing</span> <span style='color:#e66170; font-weight:bold; '>Then</span>
-    designer<span style='color:#00a800; '>.</span>Dispose<span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span>
-    Marshal<span style='color:#00a800; '>.</span>ReleaseComObject<span style='color:#d2cd86; '>(</span>designer<span style='color:#d2cd86; '>)</span>
-    designer <span style='color:#d2cd86; '>=</span> <span style='color:#e66170; font-weight:bold; '>Nothing</span>
-  <span style='color:#e66170; font-weight:bold; '>End</span> <span style='color:#e66170; font-weight:bold; '>If</span>
-<span style='color:#e66170; font-weight:bold; '>End</span> Try
+  If Not designer Is Nothing Then
+    designer.Dispose()
+    Marshal.ReleaseComObject(designer)
+    designer = Nothing
+  End If
+End Try
 </pre>
 
 <p>DTS packages are <a href="http://msdn.microsoft.com/en-us/library/aa933547%28SQL.80%29.aspx" target="_blank">saved as a structured storage file</a>. A single file can contain multiple DTS packages and multiple package versions. The following simplified code shows how to retrieve the necessary information about last package version stored in the DTS. You should loop over the <em>packageInfoColl</em> collection and allow users to select the version they wish to open.</p>
@@ -82,4 +85,4 @@ Finally
 End Try
 </pre>
 
-<p>Putting these code snippets together into a function application still takes some work but you can find my try on <a href="http://bart.jolling.googlepages.com/dtsdesigner80.vb" target="_blank">my googlepage</a>.</p>
+<p>Putting these code snippets together into a functional application still takes some work but you can find my attempt on <a href="http://bart.jolling.googlepages.com/dtsdesigner80.vb" target="_blank">my googlepage</a>.</p>

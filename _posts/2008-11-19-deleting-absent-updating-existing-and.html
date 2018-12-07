@@ -11,8 +11,10 @@ blogger_orig_url: https://bartjolling.blogspot.com/2008/11/deleting-absent-updat
 ---
 
 <p>
-Synchronizing a table based on a flat files is one of the more common tasks when dealing with databases. It should be a straight forward task to delete removed records, update changed records and insert new records but I often encounter horrible ways of achieving this goal.
-</p><p>
+Synchronizing a table based on a flat files is one of the more common tasks when dealing with databases. It should be a straight forward task to delete removed records, update changed records and insert new records but I often encounter horrible ways of achieving this goal. In this post, I describe how to do it cleanly.
+</p>
+
+<p>
 I recently came across an implementation using a DTS package with a data-driven task in SQL Server 2000. For each line in the file it would launch several queries to detect if it was a new, updated or unchanged record (all glued together with VBScript) and then launch the appropriate query to update the database.
 </p><p>Searching a bit on the internet I came across <a href="http://blogs.meetandplay.com/WPierce/archive/2006/12/22/Delete_Absent_RowsUpdate_Existing_RowsInsert_New_Rows.aspx">this simple solution</a>. The best way of doing this fast and reliably is by using the JOIN and LEFT JOIN clauses in your UPDATE, INSERT and DELETE commands to determine the status of the record. I would like to show my implementation of slightly more complicated requirements.
 </p>

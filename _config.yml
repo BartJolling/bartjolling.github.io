@@ -24,6 +24,7 @@ disqus:
 google_analytics: UA-129705373-1
 
 # Build settings
+show_excerpts: true
 markdown: kramdown
 highlighter: rouge
 theme: minima

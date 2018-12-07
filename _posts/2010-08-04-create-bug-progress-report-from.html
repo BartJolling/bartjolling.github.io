@@ -10,9 +10,10 @@ blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-52522966427514476
 blogger_orig_url: https://bartjolling.blogspot.com/2010/08/create-bug-progress-report-from.html
 ---
 
-<p>Sharepoint 2003 includes a list template for bug tracking. It provides very basic functionality like keeping bug statuses, description, comments, dates, assignments etc. For every update that is made to a bug report, Sharepoint just adds a new item to the list. It doesn't however include a bug progress report.
-</p><p>In order to create such a report, I will create a new view on the bug report list in Sharepoint in order to expose the necessary information. In MS Access I will created a linked table that allows us to perform queries on the data to put it in the correct format for use in a pivot table. This pivot table and pivot chart will contain the bug progress report.
-</p>
+<p>Sharepoint 2003 includes a list template for bug tracking. It provides very basic functionality like keeping bug statuses, description, comments, dates, assignments etc. For every update that is made to a bug report, Sharepoint just adds a new item to the list. It doesn't however include a bug progress report.</p>
+
+<p>In order to create such a report, I will create a new view on the bug report list in Sharepoint in order to expose the necessary information. In MS Access I will created a linked table that allows us to perform queries on the data to put it in the correct format for use in a pivot table. This pivot table and pivot chart will contain the bug progress report.</p>
+
 <span style="font-size:130%;">Sharepoint bug reports: progress details</span><p>
 On the sharepoint bug list, create a new view containing the following fields:
 <ul><li>Id</li><li>Issue Id</li><li>Status</li><li>Modified</li><li>Current</li></ul>This will give you the entire history for every Issue but from this information you can't yet determine when a bug changed from one status to another.</p><p><span style="font-size:130%;">MS Access linked tables</span></p><p>In order to create a bug progress report, we need to build a list of status changes for each of the issues. I have created four queries for the different situations that can occur.</p><p>The "StatusSequenceHistory" query determines the sequence of Ids of bug reports for each Issue Id. For each change it collects what Id was changed (FromId) and which new Id was created (ToId)</p>

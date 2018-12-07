@@ -16,13 +16,17 @@ blogger_orig_url: https://bartjolling.blogspot.com/2012/06/building-single-page-
 ---
 
 <p>This blogpost is part of a series about building Single Page Applications using ASP.NET MVC 4. Parts 1 through 4 use ASP.NET MVC4 beta but this post will focus on building SPA after upgrading to ASP.NET MVC 4 RC</p>
+
+<p>
 <ol>
 <li><a href="http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 1 - Basic Desktop application</a></li>
 <li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 2 - Advanced Desktop Application</a></li>
 <li><a href="http://bartjolling.blogspot.com/2012/03/building-single-page-apps-with-aspnet_15.html">Single Page Applications - Part 3 - Basic Mobile Application</a></li>
 <li><a href="http://bartjolling.blogspot.nl/2012/04/building-single-page-apps-with-aspnet.html">Single Page Applications - Part 4 - Sorting, Filtering and Manipulation data with upshot.js</a></li>
 <li>Single Page Applications - Part 5 - Using ASP.NET MVC4 RC</li>
-</ol><p>
+</ol>
+</p>
+<p>
 In the release candidate for <a href="http://www.asp.net/mvc/mvc4">ASP.NET MVC 4</a>, Microsoft decided to remove the Single Page Application template and supporting files. This was no surprise as I already concluded in part 4 of this series that SPA was far from being ready.</p><p>
 So how do you build an SPA after installing MVC4 RC? <a href="http://peterporfy.wordpress.com/2012/06/18/deliverytracker-with-asp-net-mvc-4-rc/">Peter Porfy described one solution on his blog</a>. Essentially he is taking the latest nightly build of ASP.MVC4 and correcting the errors. The downside to his solution is that it looks like a lot of work and this is still very unstable.</p><p>
 The key to my solution lies in the fact that SPA written against ASP.NET MVC4 beta, still run on machines with only the MVC4 RC installed. All the SPA essentials can be found in NuGet packages. As it happens, I had created a new <a href="http://www.myget.org/">MyGet</a> feed to enable <i>NuGet Package Restore</i> so I didn't have to include the SPA packages every time I released new code on my blog.</p><p>

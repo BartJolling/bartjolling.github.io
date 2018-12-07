@@ -12,7 +12,9 @@ blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-75667561503129149
 blogger_orig_url: https://bartjolling.blogspot.com/2008/11/developing-windows-forms-control-using.html
 ---
 
-<p>When trying to figure out how to use some of my MFC controls in a WinForms application, I came across this <a href="http://www.codeproject.com/KB/miscctrl/mfcandwindowsforms.aspx">article</a> by <a href="http://www.codeproject.com/script/Articles/MemberArticles.aspx?amid=15383">Rama Krishna Vavilala</a>. As his article was targetting the .NET 1.1 framework, I decided to rework it for .NET 2.0. The main difference is the switch from using Managed Extension for C++ to using C++/CLI.</p><h3>Static Win32 library for C3DMeterCtrl</h3>
+<p>When trying to figure out how to use some of my MFC controls in a WinForms application, I came across this <a href="http://www.codeproject.com/KB/miscctrl/mfcandwindowsforms.aspx">article</a> by <a href="http://www.codeproject.com/script/Articles/MemberArticles.aspx?amid=15383">Rama Krishna Vavilala</a>. As his article was targetting the .NET 1.1 framework, I decided to rework it for .NET 2.0. The main difference is the switch from using Managed Extension for C++ to using C++/CLI.</p>
+
+<h3>Static Win32 library for C3DMeterCtrl</h3>
 <p>As is the case in Rama's article, I will also use Mark C. Malburg's <a href="http://www.codeproject.com/KB/miscctrl/3dmeter.aspx">Analog Meter Control</a>. So first, create a Win32 static library project with support for MFC and precompiled headers called "ControlS" (S stands for static). This will contain the MFC code for the existing 3DMeterCtrl control. Place the files 3DMeterCtrl.cpp, 3DMeterCtrl.h and MemDC.h in the "ControlS" project. Modify the 3DMeterCtrl.cpp file to remove the line <span style="color: rgb(51, 51, 255);">#include</span> "MeterTestForm.h".
 </p><p>The .NET designer and runtime will call functions that try to talk to your MFC control even before its window handle is created. In case of the C3DMeterCtrl, I needed to add this function call at the beginning of the "UpdateNeedle" and "ReconstructControl" functions:</p>
 <pre class="brush: c++; ">
