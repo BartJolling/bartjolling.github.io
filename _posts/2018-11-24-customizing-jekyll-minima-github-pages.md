@@ -77,3 +77,37 @@ The homepage will show the first paragraph below the title of the post (instead 
 </p>
 ````
 
+## Customizing the template
+To customize the template you need to copy the files that you want to change into the same folder under your site. From your site's root folder, run this command to open the folder that contains the files of the minima theme.
+
+````bash
+cd $(bundle show minima)
+````
+
+### Showing an icon for the RSS feed
+Copy the head.html and header.html files to your sites _includes folder. Here you can edit them with nano for example.
+
+#### head.html
+Add a link to font awesome, e.g. by adding this line inside the <head> block
+````html
+<head>
+...
+ <link 
+  href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" 
+  rel="stylesheet" crossorigin="anonymous"
+  integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN">
+</head>
+````
+There are other ways of including font-awsome, e.g. [by using their own CDN](https://cdn.fontawesome.com/).
+
+#### header.html
+Add a link to your rss feed by adding this line at the end of the <div> with class = "trigger"
+````html
+<div class="trigger">
+...
+ <a class="page-link" href="{{ "/feed.xml" | relative_url }}">
+  <i class="fa fa-rss" aria-hidden="true"></i>
+ </a>
+</div>
+````
+
