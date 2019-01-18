@@ -7,7 +7,7 @@ categories: blog
 tags: [Hyper-V, Windows Server] 
 ---
 
-While cleaning up the files on my NAS, I came across some old virtual hard drive files (*.vhd). One that was called 'DevStation' I still recognized from my days as a consultant. My manager had requested someone on the bench to created a standardized virtual machine using VirtualBox that people could bring to their assignments and be up and running with the latest tools in no time.
+While cleaning up the files on my NAS, I came across some old virtual hard drive files (*.vhd). One that was called 'DevStation' I still recognized from my days as a consultant. My manager had requested someone on the bench to create a standardized virtual machine using VirtualBox that people could bring to their assignments and be up and running with the latest tools in no time.
 
 ## Booting
 
@@ -19,12 +19,12 @@ I already had the following issues:
 - The machine did not connect to the network
 - The keyboard worked but was set to Azerty
 
-The last issue was quickly 'solved' by digging into my pile of old keyboards.
+The last issue was quickly 'solved' by digging into my pile of old keyboards and connecting an Azerty keyboard.
 
 ### Getting Administrator access
 I followed [the procedure outlined here](https://serverfault.com/questions/469390/resetting-administrator-password-on-windows-server-2008-r2-over-raid). In short, I:
-- shut down the virtual machine 
-- pointed the virtual CD-ROM drive to a .iso file of Windows Server 2008, in the VM's settings
+- shut down the virtual machine;
+- pointed the virtual CD-ROM drive to a .iso file of Windows Server 2008, in the VM's settings;
 - checked the boot sequence to make sure that the virtual machine would boot of the CD-ROM; and 
 - then started the machine again.
 
@@ -32,7 +32,7 @@ Once booted, I chose the option to 'Repair your Computer', open a command prompt
 
 ### Capturing the mouse and getting network connectivity
 The NIC wasn't detected and the mouse did not capture because the machine had been set up on VirtualBox and I was running it in Hyper-V. What I needed to do:
-- In the 'Add/Remove Programs' Control Panel, remove the installed integration services.
+- In the 'Add/Remove Programs' Control Panel, remove the installed Integration Services components.
 - Make Windows automatically detect the correct HAL when booting.
 - Install the Hyper-V integration Services.
 - In the settings for the virtual machine, make sure all services are enabled.
