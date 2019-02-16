@@ -74,6 +74,7 @@ Follow the guide on [Github Pages](https://pages.github.com/ "GitHub Pages"):
 - Clone your Github repository to your home folder
 
 ~~~~ shell
+sudo apt-get install git
 git clone https://github.com/github_username/github_username.github.io
 ~~~~
 
