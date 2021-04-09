@@ -6,54 +6,86 @@ author: Bart Jolling
 tags:
 - JavaScript
 - Pin to taskbar
-- Windows
+- Internet Explorer
 modified_time: '2012-03-28T10:36:30.124+02:00'
 thumbnail: http://3.bp.blogspot.com/-GlwSv-d63Dw/T3Al1e37r5I/AAAAAAAAAFI/pyJAv8ksxmc/s72-c/PinMyBlog1.png
 blogger_id: tag:blogger.com,1999:blog-8436642170609457318.post-6930623728100646428
 blogger_orig_url: https://bartjolling.blogspot.com/2012/03/pinning-website-part-1-internet.html
 ---
 
-<p>While attending a Webcamp around HTML 5, the instructor pointed out the "Pin to Taskbar" feature that is available as from Internet Explorer 9. Pinning a site to the taskbar makes your website behave more like a desktop application, allowing users to select from fixed tasks and/or a dynamic jumplist, receive notifications, see thumbnail previews... all available from a prominent location on screen showing your website's logo.<p/>
+<p>While attending a Webcamp around HTML 5, the instructor pointed out the "Pin to Taskbar" feature that is available as
+  from Internet Explorer 9. Pinning a site to the taskbar makes your website behave more like a desktop application,
+  allowing users to select from fixed tasks and/or a dynamic jumplist, receive notifications, see thumbnail previews...
+  all available from a prominent location on screen showing your website's logo.
+  <p />
 
-<table cellpadding="0" cellspacing="0" class="tr-caption-container" style="float: right; margin-left: 1em; text-align: right;"><tbody>
-<tr><td style="text-align: center;"><a href="http://3.bp.blogspot.com/-GlwSv-d63Dw/T3Al1e37r5I/AAAAAAAAAFI/pyJAv8ksxmc/s1600/PinMyBlog1.png" imageanchor="1" style="clear: right; margin-bottom: 1em; margin-left: auto; margin-right: auto;"><img border="0" height="320" src="http://3.bp.blogspot.com/-GlwSv-d63Dw/T3Al1e37r5I/AAAAAAAAAFI/pyJAv8ksxmc/s320/PinMyBlog1.png" width="171" /></a></td></tr>
-<tr><td class="tr-caption" style="text-align: center;">My blog pinned to my Taskbar</td></tr>
-</tbody></table>
+<table cellpadding="0" cellspacing="0" class="tr-caption-container"
+  style="float: right; margin-left: 1em; text-align: right;">
+  <tbody>
+    <tr>
+      <td style="text-align: center;"><img border="0" height="320" src="/assets/img/2012-03-26-pinned-website.png"
+          width="171" /></td>
+    </tr>
+    <tr>
+      <td class="tr-caption" style="text-align: center;">My blog pinned to my Taskbar</td>
+    </tr>
+  </tbody>
+</table>
 <p>
-You can find all information and guidance on the '<a href="http://www.buildmypinnedsite.com/">Build my Pinned Site</a>' website. Obviously I had to try it out for myself so if you are on Internet Explorer 9 or higher, you should be able to pin my blog to your taskbar. The result of doing this should look like this at the moment:
+  You can find all information and guidance on the '<a href="http://www.buildmypinnedsite.com/">Build my Pinned
+    Site</a>' website. Obviously I had to try it out for myself so if you are on Internet Explorer 9 or higher, you
+  should be able to pin my blog to your taskbar. The result of doing this should look like this at the moment:
 <ul>
-<li>My brand new logo always present on the desktop</li>
-<li>The right-click menu containing:</li>
-<ul>
-<li>A link to my homepage</li>
-<li>A fixed 'Tasks' section showing a link to my LinkedIn profile</li>
-<li>A dynamic jumplist with my 10 most recent posts</li>
+  <li>My brand new logo always present on the desktop</li>
+  <li>The right-click menu containing:</li>
+  <ul>
+    <li>A link to my homepage</li>
+    <li>A fixed 'Tasks' section showing a link to my LinkedIn profile</li>
+    <li>A dynamic jumplist with my 10 most recent posts</li>
+  </ul>
 </ul>
-</ul>
-As long as you don't pin this blog to your taskbar you will see a teaser bar at the bottom of my page informing you that this site can take advantage of the 'Pin to taskbar' feature
+As long as you don't pin this blog to your taskbar you will see a teaser bar at the bottom of my page informing you that
+this site can take advantage of the 'Pin to taskbar' feature
 </p>
 <h3>Generating the script</h3>
 <p>
-Microsoft provides a <a href="http://www.buildmypinnedsite.com/wizard/">quick way of generating the script</a> that is needed to enable the feature. When you start their wizard you'll need to provide some basic information, a list of fixed tasks, upload a 64x64 icon file, indicate if you want a teaser bar and give the URL to your RSS or Atom feed to generate the dynamic jump list. This generates a single JavaScript file that is hosted on the 'BuildMyPinnedSite' data servers, along with the icon you uploaded. So all you need to do is insert a reference to this script file on your page and you are good to go.</p><p>Unfortunately when I first inserted that script in my blog there were some issues:
+  Microsoft provides a <a href="http://www.buildmypinnedsite.com/wizard/">quick way of generating the script</a> that is
+  needed to enable the feature. When you start their wizard you'll need to provide some basic information, a list of
+  fixed tasks, upload a 64x64 icon file, indicate if you want a teaser bar and give the URL to your RSS or Atom feed to
+  generate the dynamic jump list. This generates a single JavaScript file that is hosted on the 'BuildMyPinnedSite' data
+  servers, along with the icon you uploaded. So all you need to do is insert a reference to this script file on your
+  page and you are good to go.</p>
+<p>Unfortunately when I first inserted that script in my blog there were some issues:
 <ul>
-<li>The teaser bar was inserted on a fixed position on the top of the page where it collided with the Google navigation bar.</li>
-<li>The URLs in my dynamic jumplist pointed to the 'comments' pages instead of the posts themselves.</li>
-<li> I linked to the JavaScript file from within my blogspot template file, meaning that I would lose it if I were to choose a different template.</li>
+  <li>The teaser bar was inserted on a fixed position on the top of the page where it collided with the Google
+    navigation bar.</li>
+  <li>The URLs in my dynamic jumplist pointed to the 'comments' pages instead of the posts themselves.</li>
+  <li> I linked to the JavaScript file from within my blogspot template file, meaning that I would lose it if I were to
+    choose a different template.</li>
 </ul>
 </p>
 <h3>Making it work on Blogspot</h3>
 <div class="separator" style="clear: both; text-align: center;">
-<a href="http://img2.blogblog.com/img/widgets/icon_html.gif" imageanchor="1" style="clear:left; float:left;margin-right:1em; margin-bottom:1em"><img border="0" height="60" width="120" src="http://img2.blogblog.com/img/widgets/icon_html.gif" /></a>
+  <a href="http://img2.blogblog.com/img/widgets/icon_html.gif" imageanchor="1"
+    style="clear:left; float:left;margin-right:1em; margin-bottom:1em"><img border="0" height="60" width="120"
+      src="http://img2.blogblog.com/img/widgets/icon_html.gif" /></a>
 </div>
-<p>Blogspot allows inserting custom HTML and JavaScript via their 'HTML/JavaScript' gadget. You can find it when you put your blog in design mode, choose layout and click 'Add Gadget'. I choose a wide  gadget at the bottom of my screen because the generated teaser bar is quite wide.
+<p>Blogspot allows inserting custom HTML and JavaScript via their 'HTML/JavaScript' gadget. You can find it when you put
+  your blog in design mode, choose layout and click 'Add Gadget'. I choose a wide gadget at the bottom of my screen
+  because the generated teaser bar is quite wide.
 </p>
 <p>
-Since the script has to do everything by itself, the entire construction of the teaser bar is done via script. I don't need that kind of dynamic behavior on this blog so I extracted the teaser bar &lt;div id=&quot;___ie9sitepinning__bar_container&quot;&gt; from JavaScript and converted it to HTML. I also don't want the teaser bar to decide its own position. It should display in the area that is reserved for the gadget as defined by the template and chosen by the user.</p><p>These are the changes I made to the inline style of the root div:
+  Since the script has to do everything by itself, the entire construction of the teaser bar is done via script. I don't
+  need that kind of dynamic behavior on this blog so I extracted the teaser bar &lt;div
+  id=&quot;___ie9sitepinning__bar_container&quot;&gt; from JavaScript and converted it to HTML. I also don't want the
+  teaser bar to decide its own position. It should display in the area that is reserved for the gadget as defined by the
+  template and chosen by the user.</p>
+<p>These are the changes I made to the inline style of the root div:
 <ul>
   <li>Changed the style so it gets positioned inside the gadget's area</li>
   <ul>
-   <li>from "position: absolute; top: 0; left: 20px;width: 95%;"</li>
-   <li>into "position: relative; top: 0; left: 0px;width: 100%;"</li>
+    <li>from "position: absolute; top: 0; left: 20px;width: 95%;"</li>
+    <li>into "position: relative; top: 0; left: 0px;width: 100%;"</li>
   </ul>
   <li>Add the "display:none;" style because I don't want this div to appear by default</li>
 </ul>
@@ -97,12 +129,19 @@ The HTML that I put in 'HTML/JavaScript' gadget looks like this:
  &lt;/div&gt;
 &lt;/div&gt;
 </pre>
-<p>Notice that the image on the highlighted line 20 has a class attribute set to "msPinSite". This class is recognized by Internet Explorer 9 and higher and enables the 'Drag this icon to your taskbar' functionality</p>
-<p>The rest of the JavaScript needs to be encapsulated in a CDATA block and appended below the above div. Notice the two changes (highlighted) I had to make:</p>
+<p>Notice that the image on the highlighted line 20 has a class attribute set to "msPinSite". This class is recognized
+  by Internet Explorer 9 and higher and enables the 'Drag this icon to your taskbar' functionality</p>
+<p>The rest of the JavaScript needs to be encapsulated in a CDATA block and appended below the above div. Notice the two
+  changes (highlighted) I had to make:</p>
 <h4>Line 87-99</h4>
-<p>The original code for generating the jumplist downloads the list of links per post and then just takes the first available link. This happens to be the link to the comments page of each blog. According to the information I found on the structure of an Atom feed (as used by blogspot) the perma-link to a post is called the 'alternate' link. So I execute a 'filter' function to the list of links to find the alternate link. If it can't find it, I take the first link just like the original code did</p>
+<p>The original code for generating the jumplist downloads the list of links per post and then just takes the first
+  available link. This happens to be the link to the comments page of each blog. According to the information I found on
+  the structure of an Atom feed (as used by blogspot) the perma-link to a post is called the 'alternate' link. So I
+  execute a 'filter' function to the list of links to find the alternate link. If it can't find it, I take the first
+  link just like the original code did</p>
 <h4>Line 171-172</h4>
-<p>Instead of dynamically generating the div here, I just find it back using its 'id' and I set the 'display' style to 'block'</p>
+<p>Instead of dynamically generating the div here, I just find it back using its 'id' and I set the 'display' style to
+  'block'</p>
 </p>
 <pre class="brush:js;highlight:[87,88,89,90,91,92,93,94,95,96,97,98,99,171,172];">
 &lt;script type=&#39;text/javascript&#39;&gt;
@@ -289,5 +328,8 @@ The HTML that I put in 'HTML/JavaScript' gadget looks like this:
 //]]&gt;
 &lt;/script&gt;
 </pre>
-<p>Pinning my blog site seems a bit over the top but I can easily imagine business cases for this feature. Web applications are starting to behave more and more like desktop applications and this is one of the things that makes the end-user experience richer and provides the content owner with a means to grab the users' attention and get them to visit their site more frequently.
+<p>Pinning my blog site seems a bit over the top but I can easily imagine business cases for this feature. Web
+  applications are starting to behave more and more like desktop applications and this is one of the things that makes
+  the end-user experience richer and provides the content owner with a means to grab the users' attention and get them
+  to visit their site more frequently.
 </p>
