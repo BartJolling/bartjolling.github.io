@@ -116,6 +116,6 @@ Now you can publish to Git.
 This triggers the automated Jekyll build on Github Pages and publishes the site on [github.io]( {{ site.baseurl }}/ )
 ~~~~ shell
 git add --all
-git commit -m "Migrated to the Beatiful Jekyll theme"
+git commit -m "Migrated to the Beautiful Jekyll theme"
 git push -u origin master
 ~~~~
