@@ -4,6 +4,7 @@ title:  "Changing from Jekyll minima to the Beautiful Jekyll theme on Github Pag
 date: 2021-04-10
 categories: blog
 tags: [jekyll, beautiful jekyll, github pages]
+modified_time: 2021-04-12
 excerpt: Changing Github Pages theme from Jekyll minima to Beautiful Jekyll while upgrading to Ruby 2.7
 ---
 
@@ -41,7 +42,7 @@ ruby 2.7.2p137 (2020-10-01 revision 5445e04352) [x86_64-linux-gnu]
 
 
 ### Getting the code
-Start from a fresh git repository. Also clone the Beautiful Jekyll theme so it's easier to copy over files. From the `/home/bart/` directory, execute these commands:
+I started from a fresh local git repository and cloned the *Beautiful Jekyll* theme to my PC to make it easier to copy files. From the `/home/bart/` directory, I executed these commands:
 
 ~~~~ shell
 rm -rf ./bartjolling.github.io/
@@ -60,20 +61,20 @@ bundle update
 bundle exec jekyll serve
 ~~~~ 
 
-Browse to [https://127.0.0.1:4000/](https://127.0.0.1:4000/) to check if everything is still OK.
+Browsing to [https://127.0.0.1:4000/](https://127.0.0.1:4000/) confirmed everything is still OK.
 
-## Migrate Incrementally
+## Incremental Migration
 
 ### Gemspec
-Modify the `Gemfile` to just contain
+I modified the `Gemfile` to just contain:
 ~~~~ 
 source "https://rubygems.org"
 gemspec
 ~~~~
 
-Copy the `beautiful-jekyll-theme.gemspec` file from Beatiful Jekyll but make following modifications:
-- Upgrade Jekyll to at least 3.9.1
-- Add dependency to the minima theme package
+I copied the `beautiful-jekyll-theme.gemspec` file from the *Beautiful Jekyll* repository but made following modifications:
+- Upgraded Jekyll to at least 3.9.1
+- Added a temporary dependency to the *minima* theme package, so I could verify if above change broke something or not.
 
 ~~~~ ruby
 ...
@@ -81,10 +82,10 @@ spec.add_runtime_dependency "jekyll", "~> 3.9.1"
 spec.add_runtime_dependency "minima", "~> 2.0"
 ...
 ~~~~ 
-Follow the same steps above to `bundle install`, `update` and `exec` the site. It should still work.
+I followed the same steps above to `bundle install`, `update` and `exec` the site. The page should still build and render correctly, using the *minima* theme.
 
 ### File Copy
-Now copy over all additional files from the Beautiful Jekyll theme, except the `/_posts`
+Then I copied all additional files from the *Beautiful Jekyll* theme, except the `/_posts/`
 
 | Files/Folders | Remarks                                                          |
 | ------------- | ---------------------------------------------------------------- | 
@@ -100,22 +101,22 @@ Now copy over all additional files from the Beautiful Jekyll theme, except the `
 |`tags.html`    | Template for the [tags]({{ site.baseurl }}/tags) overview page   |
 
 ### _config.yml
-Change `_config.yml` to customize the site for you:
+I changed `_config.yml` to customize my site:
 - Set `title`, `author`, `avatar` image, `title-img` image, ... 
 - Configure the `navbar-links`
 - Setup `social-network-links` for `email`, `github`, `linkedin`, `disqus`, ... 
 - Fill in the `google_analytics` id for the site
 - Customize the `permalink` format. 
 
-> **I removed the `permalink` value, because I wanted to keep the standard URL format to avoid breaking my Google Search results**
+> **I removed the `permalink` setting, because I wanted to keep the default Jekyll URL format to avoid breaking my existing Google Search results**
 
 ## Publish to Github Pages
-Follow the same steps above to `bundle install`, `update` and `exec` the site. The site should render using the Beautiful Jekyll theme.
+Follow the same steps above to `bundle install`, `update` and `exec` the site. The site should render using the *Beautiful Jekyll* theme.
 Now you can publish to Git.
 
 This triggers the automated Jekyll build on Github Pages and publishes the site on [github.io]( {{ site.baseurl }}/ )
 ~~~~ shell
 git add --all
-git commit -m "Migrated to the Beatiful Jekyll theme"
+git commit -m "Migrated to the Beautiful Jekyll theme"
 git push -u origin master
 ~~~~
