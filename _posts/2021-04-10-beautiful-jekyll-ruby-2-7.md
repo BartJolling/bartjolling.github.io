@@ -10,7 +10,7 @@ excerpt: Changing Github Pages theme from Jekyll minima to Beautiful Jekyll whil
 
 A few years ago [I set up this Github Page]({{ site.baseurl }}{% link _posts/2018-11-18-jekyll-on-wsl-for-github-pages.md %}) using Jekyll and its [Jekyll minima theme](https://github.com/jekyll/minima). I used the Windows Subsystem for Linux (WSL) on Windows 10 with Ubuntu 18.04 and Ruby 2.5.
 
-I wanted to refresh the layout by by changing the theme to [Beautiful Jekyll](https://github.com/daattali/beautiful-jekyll) and use more recent versions of the tools. Some time in the past year, I had upgraded my Ubuntu 18.04 to 20.04 running on WSL2.
+I wanted to refresh the layout by changing the theme to [Beautiful Jekyll](https://github.com/daattali/beautiful-jekyll) and use more recent versions of the tools. Some time in the past year, I had upgraded my Ubuntu 18.04 to 20.04 running on WSL2.
 
 ## Spring Clean
 
@@ -82,7 +82,7 @@ spec.add_runtime_dependency "jekyll", "~> 3.9.1"
 spec.add_runtime_dependency "minima", "~> 2.0"
 ...
 ~~~~ 
-I followed the same steps above to `bundle install`, `update` and `exec` the site. The page should still build and render correctly, using the *minima* theme.
+I followed the same steps above to `bundle install`, `update` and `exec` the site. The page built and rendered correctly, still using the *minima* theme as expected.
 
 ### File Copy
 Then I copied all additional files from the *Beautiful Jekyll* theme, except the `/_posts/`
@@ -103,18 +103,17 @@ Then I copied all additional files from the *Beautiful Jekyll* theme, except the
 ### _config.yml
 I changed `_config.yml` to customize my site:
 - Set `title`, `author`, `avatar` image, `title-img` image, ... 
-- Configure the `navbar-links`
-- Setup `social-network-links` for `email`, `github`, `linkedin`, `disqus`, ... 
-- Fill in the `google_analytics` id for the site
-- Customize the `permalink` format. 
+- Configured the `navbar-links`
+- Set up `social-network-links` for `email`, `github`, `linkedin`, `disqus`, ... 
+- Filled in the `google_analytics` id for the site
+- Customized the `permalink` format. 
 
 > **I removed the `permalink` setting, because I wanted to keep the default Jekyll URL format to avoid breaking my existing Google Search results**
 
 ## Publish to Github Pages
-Follow the same steps above to `bundle install`, `update` and `exec` the site. The site should render using the *Beautiful Jekyll* theme.
-Now you can publish to Git.
+I followed the same steps above to `bundle install`, `update` and `exec` the site. The site now nicely rendered using the *Beautiful Jekyll* theme.
 
-This triggers the automated Jekyll build on Github Pages and publishes the site on [github.io]( {{ site.baseurl }}/ )
+Everything was ready to commit and publish to Github. This triggers the automated Jekyll build on Github Pages and publishes the site on [github.io]( {{ site.baseurl }}/ )
 ~~~~ shell
 git add --all
 git commit -m "Migrated to the Beautiful Jekyll theme"
