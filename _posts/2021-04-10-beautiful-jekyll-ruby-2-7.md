@@ -8,7 +8,7 @@ modified_time: 2021-04-12
 excerpt: Changing Github Pages theme from Jekyll minima to Beautiful Jekyll while upgrading to Ruby 2.7
 cover-img: /assets/img/2021-04-10-beautiful-jekyll-cover.png
 thumbnail-img: /assets/img/2021-04-10-beautiful-jekyll-thumb.png
-share-img: /assets/img/2021-04-10-beautiful-jekyll-logo.png
+share-img: /assets/img/2021-04-10-beautiful-jekyll-thumb.png
 ---
 
 A few years ago [I set up this Github Page]({{ site.baseurl }}{% link _posts/2018-11-18-jekyll-on-wsl-for-github-pages.md %}) using Jekyll and its [Jekyll minima theme](https://github.com/jekyll/minima). I used the Windows Subsystem for Linux (WSL) on Windows 10 with Ubuntu 18.04 and Ruby 2.5.
