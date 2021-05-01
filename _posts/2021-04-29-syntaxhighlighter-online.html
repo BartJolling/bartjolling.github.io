@@ -54,9 +54,7 @@ share-img: /assets/img/2021-04-29-syntaxhighlighter-thumb.png
         <a href="/assets/js/syntaxhighlighter.js" download style="font-size: small">Get syntaxhighlighter.js</a>
     </span><br />
     <span>
-        <a href="/assets/css/syntaxhighlighter.css" download id="downloadTheme" style="font-size: small">Download
-            default theme
-            CSS</a>
+        <a href="/assets/css/syntaxhighlighter.css" download id="downloadTheme" style="font-size: small">Get default theme CSS</a>
     </span>
     <div style="height: 10px"></div>
 </div>
@@ -2575,7 +2573,7 @@ Multiline comments &lt;b&gt;tag&lt;/b&gt;
     }
 
     function replaceThemeDownload(themeName) {
-        downloadThemeElement.innerText = `Download ${themeName} theme CSS`;
+        downloadThemeElement.innerText = `Get ${themeName} theme CSS`;
         downloadThemeElement.setAttribute("href", `javascript:downloadTheme("${themeName}")`);
     };
 
