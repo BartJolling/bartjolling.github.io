@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
     "documentation_uri" => "https://github.com/daattali/beautiful-jekyll#readme"
   }
 
-  spec.add_runtime_dependency "jekyll", "~> 3.9.1"
+  spec.add_runtime_dependency "jekyll", "~> 4.2.2"
   spec.add_runtime_dependency "minima", "~> 2.0"
   spec.add_runtime_dependency "jekyll-paginate", "~> 1.1"
   spec.add_runtime_dependency "jekyll-sitemap", "~> 1.4"
