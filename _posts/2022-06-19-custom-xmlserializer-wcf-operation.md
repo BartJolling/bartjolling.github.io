@@ -163,7 +163,10 @@ public class ConvertToOffsetResponseSerializer : XmlObjectSerializer
 
 ## Injecting the XmlObjectSerializer in the WCF pipeline
 
-Putting the new `ConvertToOffsetResponseSerializer` in the pipeline of a WCF Operation, requires defining a new DispathMessageFormatter and then applying that formatter by attaching a new OperationBehavior to that WCF Operation, that is responsible for setting this new formatter.
+In order to inject the custom `ConvertToOffsetResponseSerializer` in the pipeline of a WCF Operation, requires:
+- writing a new DispatchMessageFormatter that defines how requests are deserialized and responses are serialized,
+- creating a new OperationBehavior that overwrites the default, built-in formatter for the `XmlSerializerOperationBehavior`,
+- attaching this OperationBehavior to the WCF Operation using an attribute.
 
 ### IDispatchMessageFormatter
 
