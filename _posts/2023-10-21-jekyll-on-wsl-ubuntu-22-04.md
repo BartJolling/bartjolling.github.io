@@ -5,6 +5,9 @@ date: 2023-10-21
 last_modified_at: 2023-10-21
 categories: blog
 tags: [Jekyll, Windows Subsystem for Linux, Ruby] 
+cover-img: /assets/img/2023-10-21-jekyll-on-wsl-ubuntu-22-04-cover.jpg
+thumbnail-img: /assets/img/2023-10-21-jekyll-on-wsl-ubuntu-22-04-thumb.jpg
+share-img: /assets/img/2023-10-21-jekyll-on-wsl-ubuntu-22-04-thumb.jpg
 ---
 
 In 2018 I had moved my blog to Github pages using Jekyll on the Windows Subsystem for Linux (WSL). But when doing the setup again on a new laptop with Ubuntu 22.04 and Ruby 3, I found out the hard way the steps for installing Ruby from [my original guide]({% post_url 2018-11-18-jekyll-on-wsl-for-github-pages %}) are quite different now:
