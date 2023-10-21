@@ -2,7 +2,7 @@
 layout: post
 title:  "Building Github Pages with Jekyll on the Windows Subsystem for Linux"
 date: 2018-11-18
-last_modified_at: 2018-11-24
+last_modified_at: 2023-10-21
 categories: blog
 tags: [Jekyll, Github Pages, Windows Subsystem for Linux] 
 ---
@@ -39,8 +39,9 @@ Ubuntu can be installed directly from the Microsoft Store:
 - You will be prompted you for a user name and password. 
   * They don't have to match your Windows account.
 
-### Install Ruby in Ubuntu
-From here, follow the steps as outlined in the [Jekyll installation guide](https://jekyllrb.com/docs/installation/windows/#installation-via-bash-on-windows-10).
+### Install Ruby 2.5 in Ubuntu 18.04
+
+If you are on a newer version of Ubuntu or want to use Ruby 3, replace the steps below with [the ones detailed here]({% post_url 2023-10-21-jekyll-on-wsl-ubuntu-22-04 %}). Otherwise, follow the steps as outlined in the [Jekyll installation guide](https://jekyllrb.com/docs/installation/windows/#installation-via-bash-on-windows-10) for working with Ruby 2.5.
 
 Jekyll needs the Ruby runtime to function correctly and the Jekyll themes for Github Pages depend on zlib:
 ~~~~ shell
