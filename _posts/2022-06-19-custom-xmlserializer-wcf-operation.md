@@ -163,14 +163,16 @@ public class ConvertToOffsetResponseSerializer : XmlObjectSerializer
 
 ## Injecting the XmlObjectSerializer in the WCF pipeline
 
-In order to inject the custom `ConvertToOffsetResponseSerializer` in the pipeline of a WCF Operation, requires:
+Injecting the custom `ConvertToOffsetResponseSerializer` in the pipeline of a WCF Operation requires:
 - writing a new DispatchMessageFormatter that defines how requests are deserialized and responses are serialized,
 - creating a new OperationBehavior that overwrites the default, built-in formatter for the `XmlSerializerOperationBehavior`,
 - attaching this OperationBehavior to the WCF Operation using an attribute.
 
 ### IDispatchMessageFormatter
 
-WCF provides the `IDispatchMessageFormatter` interface for injecting classes that can deserialize request messages and serialize response messages in a WCF service application. This is were we can apply our custom `ConvertToOffsetResponseSerializer` class. On server side, we only needed to be able to customize the `SerializeReply` method. For the `DeserializeRequest`, we just continued using the existing DispatchMessageFormatter which the class received through its constructor.
+WCF provides the `IDispatchMessageFormatter` interface. This is an extension point that allows us to inject classes that can deserialize request messages and serialize response messages in a WCF service application. It’s at this juncture that we can utilize our custom ConvertToOffsetResponseSerializer class.
+
+On the server side, we only needed to customize the `SerializeReply` method in order to incorporate the time offset into the reply. The request handling remained unchanged. Therefore, for the implementation of the `DeserializeRequest` method, we leveraged the existing `DispatchMessageFormatter` that the class had received through its constructor.
 
 ```` csharp
 public class ResponseDispatchFormatter : IDispatchMessageFormatter
