@@ -2,7 +2,7 @@
 layout: post
 title:  "Simple custom desktop user menu using powershell"
 date: 2024-09-01
-last_modified_at: 2024-09-01
+last_modified_at: 2024-09-09
 categories: blog
 tags: [Powershell] 
 cover-img: /assets/img/2024-09-01-windows-start-menu-powershell-cover.png
@@ -121,13 +121,13 @@ To be most effective, the menu should display when clicking on an icon in the ta
 powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "{local-path}\UserMenu.ps1"
 ~~~~ 
 
-Replace `{local-path}` with the actual full folder path where you stored the script. Also, set Run to `Minimzed` to hide the console window when launching. This is the time to change the icon if you do not want to end up with the default PowerShell icon.
+Replace `{local-path}` with the actual full folder path where you stored the script. Also, set Run to `Minimized` to hide the console window when launching. This is the time to change the icon if you do not want to end up with the default PowerShell icon.
 
 - The command line bypasses the execution policy on your machine to prevent being blocked.
-- The window style is set to hidden to avoid showing the window.
+- The window style is set to `Hidden` to avoid showing the window.
 
-For the final step, right click your newly created  shortcut on the desktop, click to show more options and then click to pin to taskbar. If you used [the full UserMenu.ps1 script from my Github](https://gist.github.com/BartJolling/d82493c35f2f28c6ee428747da30992b), the result might look like this, after accepting the MIT license.
+For the final step, right click your newly created shortcut on the desktop, click to show more options and then click to pin to taskbar. If you used [the full UserMenu.ps1 script from my Github](https://gist.github.com/BartJolling/d82493c35f2f28c6ee428747da30992b), the result might look like this, after accepting the MIT license.
 
 ![User Menu](/assets/img/2024-09-01-windows-start-menu-powershell-result.png)
 
-You can now safely delete the icon from the desktop. It is not needed anymore. Enjoy!
+You can now safely delete the shorcut from the desktop. It is not needed anymore. Enjoy!
