@@ -12,6 +12,9 @@ excerpt: "Microsoft recently tucked the 'Sign Out' and 'Switch Users' buttons be
 ---
 Microsoft recently tucked the `Sign Out` and `Switch Users` buttons behind a maze of menus, making them harder to access. Frustrated by this change, I decided to take matters into my own hands. Using PowerShell, I crafted a custom menu that brings these actions back to your fingertips. The script can be pinned to the taskbar, where clicking it will launch it, displaying the custom menu with common user and machine actions.
 
+{:style="text-align:center;"}
+![User Menu Animated](/assets/img/2024-09-01-windows-start-menu-powershell-menu.gif)
+
 If you are just interested in the script itself
 - Download [the full UserMenu.ps1 script from my Github](https://gist.github.com/BartJolling/d82493c35f2f28c6ee428747da30992b).
 - Go to the bottom of this page for instructions on how to launch it.
@@ -128,6 +131,7 @@ Replace `{local-path}` with the actual full folder path where you stored the scr
 
 For the final step, right click your newly created shortcut on the desktop, click to show more options and then click to pin to taskbar. If you used [the full UserMenu.ps1 script from my Github](https://gist.github.com/BartJolling/d82493c35f2f28c6ee428747da30992b), the result might look like this, after accepting the MIT license.
 
-![User Menu](/assets/img/2024-09-01-windows-start-menu-powershell-result.png)
+{:style="text-align:center;"}
+![User Menu Screenshot](/assets/img/2024-09-01-windows-start-menu-powershell-result.png)
 
 You can now safely delete the shorcut from the desktop. It is not needed anymore. Enjoy!
