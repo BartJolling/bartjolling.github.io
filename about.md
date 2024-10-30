@@ -5,7 +5,23 @@ permalink: /about/
 ---
 
 # Cloud Solution Architect
-I'm currently working as a solution architect, often involved in various types of cloud architectures, helping businesses transform the way they work, apply technology and use their data. I've taken inspiration from Domain Driven Design and believe that business domains are key to creating cross-functional teams, putting boundaries around functionalities in services and organizing data.
+I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.microsoft.com/api/credentials/share/en-gb/BartJolling-9718/6A1DD1B304735747?sharingId=2181516774139D24) usually working as a solution, integration or even enterprise architect. I'm often involved in various types of cloud architectures, helping businesses transform the way they work, apply technology and use their data. I've taken inspiration from Domain Driven Design and believe that business domains are key to creating cross-functional teams, putting boundaries around functionalities in services and organizing data.
+
+<div style="text-align:center;">
+<a href="https://learn.microsoft.com/api/credentials/share/en-gb/BartJolling-9718/6A1DD1B304735747?sharingId=2181516774139D24">
+<img src="../assets/img/microsoft-certified-expert-badge.svg" alt="Microsoft Certified: Azure Solutions Architect Expert" width="20%"></a></div>
+
+## Speaker
+Sometimes you can see me on stage at a convention talking about how we helped a client getting their platform or applications safely in production.
+
+### Devoxx Belgium 2024
+At Devoxx my colleague [Dante De Ruwe](https://dantederuwe.com) and I told the story of how we built a digital platform for exchanging readings from digital electricity and gas meters in Belgium, called "Turning Uncertainty into Success: How a Modern Approach can Thrive in a Conservative Environment".
+<div style="text-align:center;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/K3VHrwwU-LU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+### Dataminds Belgium 2022
+With [Koen Verbeeck (MVP)](https://mvp.microsoft.com/en-US/MVP/profile/da7a38d8-56e4-e611-80fc-3863bb35ef70) on [Building a Low-Cost, High-Throughput Data Exchange Platform for Digital Meters on Azure](https://dataminds.be/ssis-to-adf/)
 
 ## Developer
 I started out as a C++ developer at a large financial institution, developing and evolving a client-server application that was installed at our clients. When .NET was still on version 1.1, I created my first ASP.NET tool to manage our development lab and from there I took over maintenance of a knowledge base application fully written in VB.NET. That's how I got invested in the Microsoft .NET ecosystem.
