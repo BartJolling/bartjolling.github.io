@@ -7,9 +7,79 @@ permalink: /about/
 # Cloud Solution Architect
 I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.microsoft.com/api/credentials/share/en-gb/BartJolling-9718/6A1DD1B304735747?sharingId=2181516774139D24) usually working as a solution, integration or even enterprise architect. I'm often involved in various types of cloud architectures, helping businesses transform the way they work, apply technology and use their data. I've taken inspiration from Domain Driven Design and believe that business domains are key to creating cross-functional teams, putting boundaries around functionalities in services and organizing data.
 
-<div style="text-align:center;">
-<a href="https://learn.microsoft.com/api/credentials/share/en-gb/BartJolling-9718/6A1DD1B304735747?sharingId=2181516774139D24">
-<img src="../assets/img/microsoft-certified-expert-badge.svg" alt="Microsoft Certified: Azure Solutions Architect Expert" width="20%"></a></div>
+<div class="card-container">
+<div class="card">
+  <a href="https://learn.microsoft.com/api/credentials/share/en-us/BartJolling-9718/6A1DD1B304735747?sharingId=2181516774139D24">
+    <div class="shrink-0">
+      <img src="../assets/img/microsoft-certified-expert-badge.svg" alt="Microsoft Certified: Azure Solutions Architect Expert">
+    </div>
+    <div class="text-container">
+      <div class="title">Azure Solutions Architect Expert</div>
+      <div class="subtitle">Certified by Microsoft</div>
+    </div>
+  </a>
+</div>
+
+<div class="card">
+  <a href="https://verify.skilljar.com/c/ayxpv4r5wvnm">
+    <div class="shrink-0">
+      <img src="../assets/img/LeanIX-logo.png" alt="LeanIX Practioner Level 1">
+    </div>
+    <div class="text-container">
+      <div class="title">LeanIX Practioner Level 1</div>
+      <div class="subtitle">Certified by LeanIX</div>
+    </div>
+  </a>
+</div>
+
+<div class="card">
+  <a href="https://learn.microsoft.com/en-us/users/bartjolling-9718/credentials/d7f6c6e4376648fb">
+    <div class="shrink-0">
+      <img src="../assets/img/microsoft-certified-fundamentals-badge.svg" alt="Microsoft Certified: Azure Fundamentals">
+    </div>
+    <div class="text-container">
+      <div class="title">Azure Fundamentals</div>
+      <div class="subtitle">Certified by Microsoft</div>
+    </div>
+  </a>
+</div>
+
+<div class="card">
+  <a href="https://www.credly.com/badges/57a00e15-91f1-463c-b19f-df8ee08e2190/public_url">
+    <div class="shrink-0">
+      <img src="../assets/img/TheOpenGroup-logo.jpg" alt="The Open Group Certified: TOGAF® 9 Foundation">
+    </div>
+    <div class="text-container">
+      <div class="title">TOGAF® 9 Foundation</div>
+      <div class="subtitle">Certified by The Open Group</div>
+    </div>
+  </a>
+</div>
+
+<div class="card">
+  <a href="https://www.credly.com/badges/54c468bb-05d5-4c94-ad51-34a694ba599b/public_url">
+    <div class="shrink-0">
+      <img src="../assets/img/TheOpenGroup-logo.jpg" alt="The Open Group Certified: ArchiMate® 2 Certified">
+    </div>
+    <div class="text-container">
+      <div class="title">ArchiMate® 2</div>
+      <div class="subtitle">Certified by The Open Group</div>
+    </div>
+  </a>
+</div>
+
+<div class="card">
+  <a href="https://www.credly.com/badges/9fb8763f-6923-4ed9-8445-19494fa5a748/public_url">
+    <div class="shrink-0">
+      <img src="../assets/img/ScrumOrgPsmI.png" alt="Scrum.org: Professional Scrum Master™ I (PSM I)">
+    </div>
+    <div class="text-container">
+      <div class="title">Professional Scrum Master™ I</div>
+      <div class="subtitle">Certified by Scrum.org</div>
+    </div>
+  </a>
+</div>
+</div>
 
 ## Speaker
 Sometimes you can see me on stage at a convention talking about how we helped a client getting their platform or applications safely in production.

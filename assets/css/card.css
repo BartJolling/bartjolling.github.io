@@ -1,0 +1,51 @@
+.card-container { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 1rem;
+}
+
+.card {
+    padding: 1rem;
+    width: 22rem;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem
+}
+
+.card a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+
+.card a:hover {
+    text-decoration: none;
+}
+
+.card img {
+    height: 3rem;
+    width: 3rem;
+}
+
+.card .text-container {
+    text-align: left;
+}
+
+.card .title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: black;
+}
+
+.card .subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+}
