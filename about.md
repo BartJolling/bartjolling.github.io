@@ -10,7 +10,7 @@ I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.micro
 <div class="card-container">
 <div class="card">
   <a href="https://learn.microsoft.com/api/credentials/share/en-us/BartJolling-9718/6A1DD1B304735747?sharingId=2181516774139D24">
-    <div class="shrink-0">
+    <div>
       <img src="../assets/img/microsoft-certified-expert-badge.svg" alt="Microsoft Certified: Azure Solutions Architect Expert">
     </div>
     <div class="text-container">
@@ -22,7 +22,7 @@ I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.micro
 
 <div class="card">
   <a href="https://verify.skilljar.com/c/ayxpv4r5wvnm">
-    <div class="shrink-0">
+    <div>
       <img src="../assets/img/LeanIX-logo.png" alt="LeanIX Practioner Level 1">
     </div>
     <div class="text-container">
@@ -34,7 +34,7 @@ I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.micro
 
 <div class="card">
   <a href="https://learn.microsoft.com/en-us/users/bartjolling-9718/credentials/d7f6c6e4376648fb">
-    <div class="shrink-0">
+    <div>
       <img src="../assets/img/microsoft-certified-fundamentals-badge.svg" alt="Microsoft Certified: Azure Fundamentals">
     </div>
     <div class="text-container">
@@ -46,7 +46,7 @@ I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.micro
 
 <div class="card">
   <a href="https://www.credly.com/badges/57a00e15-91f1-463c-b19f-df8ee08e2190/public_url">
-    <div class="shrink-0">
+    <div>
       <img src="../assets/img/TheOpenGroup-logo.jpg" alt="The Open Group Certified: TOGAF® 9 Foundation">
     </div>
     <div class="text-container">
@@ -58,7 +58,7 @@ I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.micro
 
 <div class="card">
   <a href="https://www.credly.com/badges/54c468bb-05d5-4c94-ad51-34a694ba599b/public_url">
-    <div class="shrink-0">
+    <div>
       <img src="../assets/img/TheOpenGroup-logo.jpg" alt="The Open Group Certified: ArchiMate® 2 Certified">
     </div>
     <div class="text-container">
@@ -70,7 +70,7 @@ I'm a [Microsoft Certified Azure Solutions Architect Expert](https://learn.micro
 
 <div class="card">
   <a href="https://www.credly.com/badges/9fb8763f-6923-4ed9-8445-19494fa5a748/public_url">
-    <div class="shrink-0">
+    <div>
       <img src="../assets/img/ScrumOrgPsmI.png" alt="Scrum.org: Professional Scrum Master™ I (PSM I)">
     </div>
     <div class="text-container">
@@ -104,9 +104,24 @@ I took on the roles that fitted the needs of the projects. Sometimes I was the S
 I got inspired by [Jeffrey Palermo’s Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/) and then slowly got into Domain Driven Design to give me strong foundation on which to base my decisions.
 
 ## Open Source and Blogging
-I started small open source projects to experiment with newer technologies and blogged about them, mainly to document my findings. I got my five minutes of fame, exploring [Microsoft’s upshot.js framework in combination with knockout.js]( https://visualstudiomagazine.com/articles/2012/06/01/the-upshot-its-a-knockout.aspx) for making Single Page Applications in [this series on blogspot.com]( http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html)
+I started small open source projects to experiment with newer technologies and blogged about them, mainly to document my findings. I got my five minutes of fame, exploring [Microsoft’s upshot.js framework in combination with knockout.js]( https://visualstudiomagazine.com/articles/2012/06/01/the-upshot-its-a-knockout.aspx) for making Single Page Applications in [this series on blogspot.com]( http://bartjolling.blogspot.com/2012/02/building-single-page-apps-with-aspnet.html).
 
-It turns out that I often seem to experiment with Javascript, especially for making userscripts for the GreaseMonkey and TamperMonkey browser extensions. [You can find them back on Github]( https://github.com/BartJolling).
+It turns out that I often experiment with Javascript, especially for making userscripts for the GreaseMonkey and TamperMonkey browser extensions. [You can find them back on Github]( https://github.com/BartJolling).
+
+<div class="card">
+  <a href="https://stackexchange.com/users/179282">
+    <div>
+      <img src="https://stackexchange.com/users/flair/179282.png?theme=clean" alt="Profile for Bart Jolling on Stack Exchange" style="height: 4rem; width: auto;">
+    </div>
+    <div class="text-container" style="margin-left: -3rem;">
+      <div class="title">Bart Jolling</div>
+      <div class="subtitle">Stack Exchange</div>
+    </div>
+  </a>
+</div>
+
+For me, giving back to the community is important. Whether it’s through blogging about my experiments, sharing my open source projects on GitHub, or helping others solve problems on [Stack Overflow](https://stackoverflow.com/users/411831/bart-jolling), I enjoy sharing what I learn and contributing to the collective knowledge of the developer community.
+
 
 ## People Manager
 While growing in experience, I started guiding junior developers, medior consultants and at one point I managed 4 teams purely from a people management point of view. 
