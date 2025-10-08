@@ -13,7 +13,15 @@ excerpt: "This article shows how to run VibeVoice efficiently on a Windows 11 ma
 
 # Getting VibeVoice Running on a Windows Machine with RTX 3060 Ti
 
-VibeVoice is a powerful text-to-speech (TTS) model developed by Microsoft. You can try it out on [VibeVoice.net](https://vibevoice.net/). Unfortunately, the official GitHub repository has been closed, so the only way to get started is via **community builds** hosted on Hugging Face. 
+VibeVoice is a powerful text-to-speech (TTS) model developed by Microsoft. Unfortunately, the official GitHub repository has been closed, so the only way to get started is via **community builds** hosted on Hugging Face. 
+
+## Demo
+
+You can test it on [VibeVoice.io](https://vibevoice.io/), which is very fast, or on [HuggingFace](https://huggingface.co/spaces/broadfield-dev/VibeVoice-demo), which is significantly slower. In our test, VibeVoice produced 18 seconds of audio in only 14.5 seconds, compared to 151 seconds on the HuggingFace platform.
+
+<div style="text-align:center">
+  <img src="/assets/img/2025-10-05-windows-vibe-voice-demo.png" width="75%"/>
+</div>
 
 In this post, I’ll walk through my journey setting up VibeVoice on Windows, from the initial 1.5B model to the full 7B model, and finally using **quantized 4-bit models** that actually fit on my 8GB GPU.
 
@@ -48,7 +56,7 @@ This gave me confidence to try the full 7B model.
 I moved on to the 7B model:
 
 ```powershell
-python demo/gradio_demo.py --model_path microsoft/VibeVoice-7B --device cuda --share
+python demo/gradio_demo.py --model_path vibevoice/VibeVoice-7B --device cuda --share
 ```
 
 ⚠️ Problem: The 7B FP16 checkpoint requires ~19GB VRAM, which is far beyond my RTX 3060 Ti’s 8GB.
