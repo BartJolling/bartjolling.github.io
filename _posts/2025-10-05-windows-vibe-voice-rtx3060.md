@@ -4,7 +4,7 @@ title: "Running Vibe Voice on Windows 11 with RTX 3060 Ti"
 date: 2025-10-05
 last_modified_at: 2025-10-05
 categories: blog
-tags: [DIY] 
+tags: [VibeVoice] 
 cover-img: /assets/img/2025-10-05-windows-vibe-voice.png
 thumbnail-img: /assets/img/2025-10-05-windows-vibe-voice-thumb.png
 share-img: /assets/img/2025-10-05-windows-vibe-voice-thumb.png
@@ -69,7 +69,7 @@ Using Task Manager → Performance → GPU, I confirmed:
 
 ## Using Quantized 4-bit Models
 
-The solution is quantized models which reduce VRAM usage dramatically. The 8-bit version requires 12 GB of VRAM. The 4-bit version requires 8GB, which is ideal from my RTX 3060 Ti.
+The solution is quantized models which reduce VRAM usage dramatically. The 8-bit version requires 12 GB of VRAM. The 4-bit version requires 8GB, which is ideal for my RTX 3060 Ti.
 
 ### Download 4-bit model locally
 
