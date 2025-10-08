@@ -84,7 +84,7 @@ git clone https://huggingface.co/Dannidee/VibeVoice7b-low-vram D:\Huggingface\Vi
 Since the model is 4-bit quantized, it requires the `bitsandbytes` library:
 
 ```powershell
-pip install bitsandbytes-windows
+pip install bitsandbytes
 ```
 
 ### Run the demo with the local 4-bit model
